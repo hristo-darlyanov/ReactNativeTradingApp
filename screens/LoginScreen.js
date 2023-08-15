@@ -1,14 +1,32 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableHighlight } from 'react-native'
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
+import { auth } from '../config/Firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
+    const createTwoButtonAlert = () =>
+        Alert.alert('Invalid credentials', 'The credentials you provided are incorrect', [
+            { text: 'OK', onPress: () => {} },
+        ]);
+
     const handeLogin = () => {
-        
+        signInWithEmailAndPassword(auth, email, password)
+            .then(userCredentials => {
+                const user = userCredentials.email
+                console.log('Successfully signed in user:', user)
+            })
+            .catch(error => {
+                if (error.message == "Firebase: Error (auth/invalid-email).") {
+                    createTwoButtonAlert()
+                } else {
+                    console.log(error.message)
+                }
+            })
     }
 
     return (
@@ -65,7 +83,7 @@ const LoginScreen = ({ navigation }) => {
                 <View style={styles.buttonWrapper}>
                     <TouchableOpacity
                         style={styles.loginButton}
-                        onPress={() => navigation.navigate('LoginScreen')}>
+                        onPress={handeLogin}>
                         <Text style={styles.loginButtonText}>Log in</Text>
                     </TouchableOpacity>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
@@ -153,7 +171,8 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingVertical: 15,
         fontSize: 18,
-        marginBottom: 10
+        marginBottom: 10,
+        color: 'white'
     },
     emailContainer: {
         flexDirection: 'row',
