@@ -7,6 +7,10 @@ const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
+    const handeLogin = () => {
+        
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.screenWrapper}>
@@ -96,7 +100,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     inputWrapper: {
-        marginBottom: 70,
+        marginBottom: 60,
         width: '90%',
         alignItems: 'center',
         justifyContent: 'center'
@@ -148,7 +152,8 @@ const styles = StyleSheet.create({
     input: {
         width: '100%',
         paddingVertical: 15,
-        fontSize: 18
+        fontSize: 18,
+        marginBottom: 10
     },
     emailContainer: {
         flexDirection: 'row',
@@ -174,6 +179,6 @@ const styles = StyleSheet.create({
     titleText: {
         color: 'white',
         fontSize: 30,
-        marginBottom: 30
+        marginBottom: 22
     }
 })
