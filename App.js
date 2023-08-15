@@ -21,7 +21,7 @@ function EntryStack() {
 export default function App() {
   return (
     <NavigationContainer>
-      <LoginScreen />
+      <EntryStack />
     </NavigationContainer>
   );
 }
