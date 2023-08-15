@@ -2,8 +2,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { LineChart } from 'react-native-wagmi-charts';
 import React from 'react'
 import data from '../assets/data/EntryScreenData'
+import { useNavigation } from '@react-navigation/native';
 
-const EntryScreen = () => {
+const EntryScreen = ({navigation}) => {
+
     return (
         <View style={styles.container}>
             <View style={styles.titleWrapper}>
@@ -22,11 +24,13 @@ const EntryScreen = () => {
             </View>
             <View style={styles.buttonWrapper}>
                 <TouchableOpacity
-                    style={styles.loginButton}>
+                    style={styles.loginButton}
+                    onPress={() => navigation.navigate('LoginScreen')}>
                     <Text style={styles.loginButtonText}>Log in</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={styles.signUpButton}>
+                    style={styles.signUpButton}
+                    onPress={() => navigation.navigate('SignUpScreen')}>
                     <Text style={styles.singUpButtonText}>Sign up</Text>
                 </TouchableOpacity>
             </View>
