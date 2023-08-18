@@ -4,7 +4,7 @@ import React from 'react'
 import data from '../assets/data/EntryScreenData'
 import { useNavigation } from '@react-navigation/native';
 
-const EntryScreen = ({navigation}) => {
+const EntryScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
@@ -14,7 +14,7 @@ const EntryScreen = ({navigation}) => {
             <View style={styles.chart}>
                 <LineChart.Provider data={data}>
                     <LineChart>
-                        <LineChart.Path color='white'/>
+                        <LineChart.Path color='white' />
                     </LineChart>
                 </LineChart.Provider>
             </View>
@@ -28,6 +28,13 @@ const EntryScreen = ({navigation}) => {
                     onPress={() => navigation.navigate('LoginScreen')}>
                     <Text style={styles.loginButtonText}>Log in</Text>
                 </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
+                    <View style={{ flex: 1, height: 1, backgroundColor: 'white' }} />
+                    <View>
+                        <Text style={{ width: 50, textAlign: 'center', color: 'white' }}>or</Text>
+                    </View>
+                    <View style={{ flex: 1, height: 1, backgroundColor: 'white' }} />
+                </View>
                 <TouchableOpacity
                     style={styles.signUpButton}
                     onPress={() => navigation.navigate('SignUpScreen')}>
@@ -85,7 +92,6 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         borderWidth: 2,
         marginBottom: '7%',
-        marginTop: '2%',
         borderRadius: 10
     },
     singUpButtonText: {

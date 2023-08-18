@@ -28,7 +28,7 @@ const LoginScreen = ({ navigation }) => {
         ]);
 
     const forgotPasswordMissingEmailErrorPopup = () =>
-        Alert.alert('Missing email', 'there is not email provided', [
+        Alert.alert('Missing email', 'There is no email provided', [
             { text: 'OK', onPress: () => { } },
         ]);
 
@@ -154,18 +154,13 @@ const LoginScreen = ({ navigation }) => {
                         onPress={handeLogin}>
                         <Text style={styles.loginButtonText}>Log in</Text>
                     </TouchableOpacity>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
-                        <View style={{ flex: 1, height: 1, backgroundColor: 'white' }} />
-                        <View>
-                            <Text style={{ width: 50, textAlign: 'center', color: 'white' }}>or</Text>
-                        </View>
-                        <View style={{ flex: 1, height: 1, backgroundColor: 'white' }} />
+                    <View style={styles.secondOptionWrapper}>
+                        <Text style={{color: 'grey', fontSize: 18}}>Don't have an account? </Text>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('SignUpScreen')}>
+                            <Text style={styles.singUpButtonText}>Sign up</Text>
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                        style={styles.signUpButton}
-                        onPress={() => navigation.navigate('SignUpScreen')}>
-                        <Text style={styles.singUpButtonText}>Sign up</Text>
-                    </TouchableOpacity>
                 </View>
             </View>
         </View>
@@ -210,17 +205,6 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 18,
         fontWeight: 'bold'
-    },
-    signUpButton: {
-        backgroundColor: 'black',
-        width: '100%',
-        paddingVertical: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor: 'white',
-        borderWidth: 2,
-        marginBottom: '7%',
-        borderRadius: 10
     },
     singUpButtonText: {
         color: 'white',
@@ -277,5 +261,10 @@ const styles = StyleSheet.create({
     resetPasswordText: {
         color: 'white',
         fontSize: 18,
+    },
+    secondOptionWrapper: {
+        flexDirection: 'row',
+        marginTop: 20,
+        marginBottom: 30
     }
 })

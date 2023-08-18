@@ -6,7 +6,6 @@ import { auth } from '../config/Firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const SignUpScreen = ({ navigation }) => {
-  const [backButtonTransparent, setBackButtonTransparent] = useState(1)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
@@ -24,7 +23,7 @@ const SignUpScreen = ({ navigation }) => {
     }
   );
 
-  const handeLogin = () => {
+  const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then(userCredentials => {
         const user = userCredentials.email
@@ -68,7 +67,7 @@ const SignUpScreen = ({ navigation }) => {
             iconStyle={{ marginRight: -5 }}
             underlayColor="grey" />
         </Animated.View>
-        <Animated.View style={{opacity: fadeAnim}}>
+        <Animated.View style={{ opacity: fadeAnim }}>
           <Text style={styles.titleText}>Create account</Text>
         </Animated.View>
         <SafeAreaView style={styles.inputWrapper}>
@@ -122,22 +121,17 @@ const SignUpScreen = ({ navigation }) => {
         </SafeAreaView>
         <View style={styles.buttonWrapper}>
           <TouchableOpacity
-            style={styles.loginButton}
-            onPress={handeLogin}>
-            <Text style={styles.loginButtonText}>Sign up</Text>
-          </TouchableOpacity>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 10 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'white' }} />
-            <View>
-              <Text style={{ width: 50, textAlign: 'center', color: 'white' }}>or</Text>
-            </View>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'white' }} />
-          </View>
-          <TouchableOpacity
             style={styles.signUpButton}
-            onPress={() => navigation.navigate('LoginScreen')}>
-            <Text style={styles.singUpButtonText}>Log in</Text>
+            onPress={() => {}}>
+            <Text style={styles.signUpButtonText}>Sign up</Text>
           </TouchableOpacity>
+          <View style={styles.secondOptionWrapper}>
+            <Text style={{ color: 'grey', fontSize: 18 }}>Already have an account? </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('LoginScreen')}>
+              <Text style={styles.loginButtonText}>Log in</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
@@ -169,7 +163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     width: '90%',
   },
-  loginButton: {
+  signUpButton: {
     backgroundColor: 'white',
     width: '100%',
     paddingVertical: 20,
@@ -179,23 +173,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10
   },
-  loginButtonText: {
+  signUpButtonText: {
     color: 'black',
     fontSize: 18,
     fontWeight: 'bold'
   },
-  signUpButton: {
-    backgroundColor: 'black',
-    width: '100%',
-    paddingVertical: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderColor: 'white',
-    borderWidth: 2,
-    marginBottom: '7%',
-    borderRadius: 10
-  },
-  singUpButtonText: {
+  loginButtonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold'
@@ -242,16 +225,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     marginBottom: 22
   },
-  forgotPasswordWrapper: {
-    justifyContent: 'flex-end',
-    alignSelf: 'flex-end',
-    marginBottom: 25,
-    marginRight: '5%'
-  },
-  resetPasswordText: {
-    color: 'white',
-    fontSize: 18,
-  },
   userContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -262,4 +235,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     width: '100%',
   },
+  secondOptionWrapper: {
+    flexDirection: 'row',
+    marginTop: 20,
+    marginBottom: 30
+  }
 })
