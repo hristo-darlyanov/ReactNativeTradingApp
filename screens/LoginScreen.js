@@ -1,11 +1,24 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert } from 'react-native'
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, Animated, Keyboard } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { auth } from '../config/Firebase';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 
 const LoginScreen = ({ navigation }) => {
+    const keyboardShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        () => {
+            fadeOut()
+        }
+    );
+    const keyboardHideListener = Keyboard.addListener(
+        'keyboardDidHide',
+        () => {
+            fadeIn()
+        }
+    );
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
@@ -56,10 +69,31 @@ const LoginScreen = ({ navigation }) => {
             });
     }
 
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+
+    const fadeIn = () => {
+        // Will change fadeAnim value to 1 in 5 seconds
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const fadeOut = () => {
+        // Will change fadeAnim value to 0 in 3 seconds
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 100,
+            useNativeDriver: true,
+        }).start();
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.screenWrapper}>
-                <View style={styles.backButton}>
+                <Animated.View
+                    style={[styles.backButton, { opacity: fadeAnim }]}>
                     <IconAntDesign.Button
                         name="left"
                         size={43}
@@ -69,8 +103,10 @@ const LoginScreen = ({ navigation }) => {
                         borderRadius={50}
                         iconStyle={{ marginRight: -5 }}
                         underlayColor="grey" />
-                </View>
-                <Text style={styles.titleText}>Welcome back</Text>
+                </Animated.View>
+                <Animated.View style={{ opacity: fadeAnim }}>
+                    <Text style={styles.titleText}>Welcome back</Text>
+                </Animated.View>
                 <View style={styles.inputWrapper}>
                     <View style={styles.emailContainer}>
                         <IconOcticons
