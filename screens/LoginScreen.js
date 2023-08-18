@@ -65,7 +65,7 @@ const LoginScreen = ({ navigation }) => {
                         size={43}
                         backgroundColor={'black'}
                         color="white"
-                        onPress={() => navigation.goBack()}
+                        onPress={() => navigation.navigate('EntryScreen')}
                         borderRadius={50}
                         iconStyle={{ marginRight: -5 }}
                         underlayColor="grey" />
