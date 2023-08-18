@@ -3,15 +3,25 @@ import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
 import { auth } from '../config/Firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
-    const createTwoButtonAlert = () =>
+    const invalidCredentialsErrorPopup = () =>
         Alert.alert('Invalid credentials', 'The credentials you provided are incorrect', [
-            { text: 'OK', onPress: () => {} },
+            { text: 'OK', onPress: () => { } },
+        ]);
+
+    const forgotPasswordMissingEmailErrorPopup = () =>
+        Alert.alert('Missing email', 'there is not email provided', [
+            { text: 'OK', onPress: () => { } },
+        ]);
+
+    const forgotPasswordUserNotFoundErrorPopup = () =>
+        Alert.alert('This user does not exist', 'Make sure you typed the email correctly. If you dont have an account, sign up!', [
+            { text: 'OK', onPress: () => { } },
         ]);
 
     const handeLogin = () => {
@@ -22,11 +32,28 @@ const LoginScreen = ({ navigation }) => {
             })
             .catch(error => {
                 if (error.message == "Firebase: Error (auth/invalid-email).") {
-                    createTwoButtonAlert()
+                    invalidCredentialsErrorPopup()
                 } else {
                     console.log(error.message)
                 }
             })
+    }
+
+    const handleForgottenPassword = () => {
+        sendPasswordResetEmail(auth, email)
+            .then(() => {
+                console.log("Password reset email sent!")
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                if (errorMessage == "Firebase: Error (auth/missing-email).") {
+                    forgotPasswordMissingEmailErrorPopup()
+                } else if (errorMessage == "Firebase: Error (auth/user-not-found).") {
+                    forgotPasswordUserNotFoundErrorPopup()
+                }
+                console.log(errorMessage)
+            });
     }
 
     return (
@@ -80,6 +107,11 @@ const LoginScreen = ({ navigation }) => {
                             onChangeText={(text) => setPassword(text)} />
                     </View>
                 </View>
+                <View style={styles.forgotPasswordWrapper}>
+                    <TouchableOpacity onPress={handleForgottenPassword}>
+                        <Text style={styles.resetPasswordText}>Forgot password?</Text>
+                    </TouchableOpacity>
+                </View>
                 <View style={styles.buttonWrapper}>
                     <TouchableOpacity
                         style={styles.loginButton}
@@ -118,7 +150,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     inputWrapper: {
-        marginBottom: 60,
+        marginBottom: 20,
         width: '90%',
         alignItems: 'center',
         justifyContent: 'center'
@@ -199,5 +231,15 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 30,
         marginBottom: 22
+    },
+    forgotPasswordWrapper: {
+        justifyContent: 'flex-end',
+        alignSelf: 'flex-end',
+        marginBottom: 25,
+        marginRight: '5%'
+    },
+    resetPasswordText: {
+        color: 'white',
+        fontSize: 18,
     }
 })
