@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end'
     },
     inputWrapper: {
-        marginBottom: 20,
+        marginBottom: 0,
         width: '90%',
         alignItems: 'center',
         justifyContent: 'center'
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 0,
         borderWidth: 1,
         width: '100%',
-        marginTop: 20
+        marginTop: 0
     },
     titleText: {
         color: 'white',
