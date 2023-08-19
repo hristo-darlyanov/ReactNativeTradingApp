@@ -3,7 +3,7 @@ import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useEffect, useState, useRef } from 'react'
 import { auth } from '../config/Firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState('')
@@ -11,10 +11,19 @@ const SignUpScreen = ({ navigation }) => {
   const [password, setPassword] = useState('')
   const [confirmationPassword, setConfirmationPassword] = useState('')
 
+  const [usernameValidationMessage, setUsernameValidationMessage] = useState('')
+  const [emailValidationMessage, setEmailValidationMessage] = useState('')
+  const [passwordValidationMessage, setPasswordValidationMessage] = useState('')
+  const [confirmPasswordValidationMessage, setConfirmPasswordValidationMessage] = useState('')
+
   const keyboardShowListener = Keyboard.addListener(
     'keyboardDidShow',
     () => {
       fadeOut()
+      setUsernameValidationMessage('')
+      setEmailValidationMessage('')
+      setPasswordValidationMessage('')
+      setConfirmPasswordValidationMessage('')
     }
   );
   const keyboardHideListener = Keyboard.addListener(
@@ -24,13 +33,89 @@ const SignUpScreen = ({ navigation }) => {
     }
   );
 
+  function validInput() {
+    // Username regex
+    const usernameBetweenEightAndTwentyCharactersRegex = new RegExp(/^(?=.{3,12}$)/i)
+    const usernameHasValidCharactersRegex = new RegExp(/(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/i)
+    // Email regex
+    const emailRegex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}')
+    // Password regex
+    const passwordRegex = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/)
+
+    const passedTests = []
+    // Validate username
+    if (username != "") {
+      if (usernameHasValidCharactersRegex.test(username)) {
+        if (usernameBetweenEightAndTwentyCharactersRegex.test(username)) {
+          passedTests.push(true)
+        } else {
+          setUsernameValidationMessage('Username must be 3-12 characters long')
+          passedTests.push(false)
+        }
+      } else {
+        setUsernameValidationMessage('Username must not contain special characters')
+        passedTests.push(false)
+      }
+    }
+
+    // Validate email
+    if (email != "") {
+      if (emailRegex.test(email)) {
+        passedTests.push(true)
+      } else {
+        passedTests.push(false)
+        setEmailValidationMessage('Incorrect email format')
+      }
+    } else {
+      passedTests.push(false)
+      setEmailValidationMessage("Email can't be empty")
+    }
+
+    // Validate password
+    if (passwordRegex.test(password)) {
+      passedTests.push(true)
+    } else {
+      passedTests.push(false)
+      setPasswordValidationMessage('Password must contain 8+ characters and have at least 1 uppercase letter, 1 lowercase letter and 1 number')
+    }
+
+    // Validate confirmation password
+    if (confirmationPassword === password) {
+      passedTests.push(true)
+    } else {
+      passedTests.push(false)
+      setConfirmPasswordValidationMessage('Passwords do not match')
+    }
+
+    return passedTests.every(Boolean)
+  }
+
   const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(userCredentials => {
-        const user = userCredentials.email
-        console.log('Successfully registered user:', user)
-      })
-      .catch(error => console.log(error.message))
+    setUsernameValidationMessage('')
+    setEmailValidationMessage('')
+    setPasswordValidationMessage('')
+    setConfirmPasswordValidationMessage('')
+
+    if (validInput()) {
+      // Create user
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredentials) => {
+          const user = userCredentials.user.email
+          console.log('Successfully registered user:', user)
+          // Set user's displayName
+          if (username != "") {
+            updateProfile(auth.currentUser, {
+              displayName: username
+            })
+              .then(() => {
+                console.log("Set displayname for user")
+              }).catch((error) => {
+                console.log(error.message)
+              });
+          }
+        })
+        .catch(error => console.log(error.message))
+    }
   }
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -72,6 +157,9 @@ const SignUpScreen = ({ navigation }) => {
           <Text style={styles.titleText}>Create account</Text>
         </Animated.View>
         <SafeAreaView style={styles.inputWrapper}>
+
+          {/* Username field */}
+
           <View style={styles.userContainer}>
             <IconAntDesign
               name="user"
@@ -86,6 +174,10 @@ const SignUpScreen = ({ navigation }) => {
               value={username}
               onChangeText={(text) => setUsername(text)} />
           </View>
+          <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{usernameValidationMessage}</Text>
+
+          {/* Email field */}
+
           <View style={styles.emailContainer}>
             <IconOcticons
               name="mail"
@@ -102,6 +194,10 @@ const SignUpScreen = ({ navigation }) => {
               value={email}
               onChangeText={(text) => setEmail(text)} />
           </View>
+          <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{emailValidationMessage}</Text>
+
+          {/* Password field */}
+
           <View style={styles.passwordContainer}>
             <IconOcticons
               name="key"
@@ -119,6 +215,10 @@ const SignUpScreen = ({ navigation }) => {
               value={password}
               onChangeText={(text) => setPassword(text)} />
           </View>
+          <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{passwordValidationMessage}</Text>
+
+          {/* Confirm password field */}
+
           <View style={styles.confirmPasswordContainer}>
             <IconOcticons
               name="key"
@@ -136,11 +236,12 @@ const SignUpScreen = ({ navigation }) => {
               value={confirmationPassword}
               onChangeText={(text) => setConfirmationPassword(text)} />
           </View>
+          <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{confirmPasswordValidationMessage}</Text>
         </SafeAreaView>
         <View style={styles.buttonWrapper}>
           <TouchableOpacity
             style={styles.signUpButton}
-            onPress={() => {}}>
+            onPress={handleSignUp}>
             <Text style={styles.signUpButtonText}>Sign up</Text>
           </TouchableOpacity>
           <View style={styles.secondOptionWrapper}>
@@ -211,7 +312,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    paddingVertical: 15,
+    paddingVertical: 10,
     fontSize: 18,
     marginBottom: 10,
     color: 'white'
@@ -225,7 +326,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderTopWidth: 0,
     width: '100%',
-    marginTop: 20
+    marginTop: 0
   },
   passwordContainer: {
     flexDirection: 'row',
@@ -236,7 +337,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     borderWidth: 1,
     width: '100%',
-    marginTop: 20
+    marginTop: 0
   },
   confirmPasswordContainer: {
     flexDirection: 'row',
@@ -247,7 +348,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     borderWidth: 1,
     width: '100%',
-    marginTop: 20
+    marginTop: 0
   },
   titleText: {
     color: 'white',
