@@ -5,15 +5,17 @@ import { NavigationContainer } from '@react-navigation/native';
 import EntryScreen from './screens/EntryScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import ResetPasswordScreen from './screens/ResetPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
 function EntryStack() {
   return (
-    <Stack.Navigator defaultScreenOption={EntryScreen} screenOptions={{headerShown: false}}>
+    <Stack.Navigator defaultScreenOption={EntryScreen} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="EntryScreen" component={EntryScreen} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+      <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
     </Stack.Navigator>
   )
 }

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, Animated, Keyboard } from 'react-native'
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, Animated, Keyboard, SafeAreaView } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState, useRef } from 'react'
@@ -6,10 +6,15 @@ import { auth } from '../config/Firebase';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 
 const LoginScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [areCredentialsValid, setAreCredentialsValid] = useState(0)
+
     const keyboardShowListener = Keyboard.addListener(
         'keyboardDidShow',
         () => {
             fadeOut()
+            setAreCredentialsValid(0)
         }
     );
     const keyboardHideListener = Keyboard.addListener(
@@ -19,54 +24,16 @@ const LoginScreen = ({ navigation }) => {
         }
     );
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-
-    const invalidCredentialsErrorPopup = () =>
-        Alert.alert('Invalid credentials', 'The credentials you provided are incorrect', [
-            { text: 'OK', onPress: () => { } },
-        ]);
-
-    const forgotPasswordMissingEmailErrorPopup = () =>
-        Alert.alert('Missing email', 'There is no email provided', [
-            { text: 'OK', onPress: () => { } },
-        ]);
-
-    const forgotPasswordUserNotFoundErrorPopup = () =>
-        Alert.alert('This user does not exist', 'Make sure you typed the email correctly. If you dont have an account, sign up!', [
-            { text: 'OK', onPress: () => { } },
-        ]);
-
     const handeLogin = () => {
+        setAreCredentialsValid(0)
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.email
                 console.log('Successfully signed in user:', user)
             })
             .catch(error => {
-                if (error.message == "Firebase: Error (auth/invalid-email).") {
-                    invalidCredentialsErrorPopup()
-                } else {
-                    console.log(error.message)
-                }
+                setAreCredentialsValid(1)
             })
-    }
-
-    const handleForgottenPassword = () => {
-        sendPasswordResetEmail(auth, email)
-            .then(() => {
-                console.log("Password reset email sent!")
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                if (errorMessage == "Firebase: Error (auth/missing-email).") {
-                    forgotPasswordMissingEmailErrorPopup()
-                } else if (errorMessage == "Firebase: Error (auth/user-not-found).") {
-                    forgotPasswordUserNotFoundErrorPopup()
-                }
-                console.log(errorMessage)
-            });
     }
 
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -90,7 +57,7 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.screenWrapper}>
                 <Animated.View
                     style={[styles.backButton, { opacity: fadeAnim }]}>
@@ -107,6 +74,9 @@ const LoginScreen = ({ navigation }) => {
                 <Animated.View style={{ opacity: fadeAnim }}>
                     <Text style={styles.titleText}>Welcome back</Text>
                 </Animated.View>
+
+                {/* Email field */}
+
                 <View style={styles.inputWrapper}>
                     <View style={styles.emailContainer}>
                         <IconOcticons
@@ -125,6 +95,10 @@ const LoginScreen = ({ navigation }) => {
                             value={email}
                             onChangeText={(text) => setEmail(text)} />
                     </View>
+                    <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
+
+                    {/* Password field */}
+
                     <View style={styles.passwordContainer}>
                         <IconOcticons
                             name="key"
@@ -142,9 +116,10 @@ const LoginScreen = ({ navigation }) => {
                             value={password}
                             onChangeText={(text) => setPassword(text)} />
                     </View>
+                    <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
                 </View>
                 <View style={styles.forgotPasswordWrapper}>
-                    <TouchableOpacity onPress={handleForgottenPassword}>
+                    <TouchableOpacity onPress={() => {}}>
                         <Text style={styles.resetPasswordText}>Forgot password?</Text>
                     </TouchableOpacity>
                 </View>
@@ -155,7 +130,7 @@ const LoginScreen = ({ navigation }) => {
                         <Text style={styles.loginButtonText}>Log in</Text>
                     </TouchableOpacity>
                     <View style={styles.secondOptionWrapper}>
-                        <Text style={{color: 'grey', fontSize: 18}}>Don't have an account? </Text>
+                        <Text style={{ color: 'grey', fontSize: 18 }}>Don't have an account? </Text>
                         <TouchableOpacity
                             onPress={() => navigation.navigate('SignUpScreen')}>
                             <Text style={styles.singUpButtonText}>Sign up</Text>
@@ -163,7 +138,7 @@ const LoginScreen = ({ navigation }) => {
                     </View>
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 
