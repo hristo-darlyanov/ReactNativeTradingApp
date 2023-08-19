@@ -6,9 +6,10 @@ import { auth } from '../config/Firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const SignUpScreen = ({ navigation }) => {
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [username, setUsername] = useState('')
+  const [confirmationPassword, setConfirmationPassword] = useState('')
 
   const keyboardShowListener = Keyboard.addListener(
     'keyboardDidShow',
@@ -118,6 +119,23 @@ const SignUpScreen = ({ navigation }) => {
               value={password}
               onChangeText={(text) => setPassword(text)} />
           </View>
+          <View style={styles.confirmPasswordContainer}>
+            <IconOcticons
+              name="key"
+              size={30}
+              color="white"
+              style={{ marginRight: 10, marginLeft: 0 }} />
+            <TextInput
+              style={styles.input}
+              placeholder='Confirm password'
+              placeholderTextColor='grey'
+              autoCapitalize='none'
+              autoCorrect={false}
+              secureTextEntry={true}
+              textContentType='password'
+              value={confirmationPassword}
+              onChangeText={(text) => setConfirmationPassword(text)} />
+          </View>
         </SafeAreaView>
         <View style={styles.buttonWrapper}>
           <TouchableOpacity
@@ -210,6 +228,17 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomColor: 'white',
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    width: '100%',
+    marginTop: 20
+  },
+  confirmPasswordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomColor: 'white',
