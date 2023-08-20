@@ -1,10 +1,57 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Keyboard } from 'react-native'
 import React, { useState } from 'react'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
+import { auth } from '../config/Firebase';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 const ResetPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('')
+  const [emailValidationMessage, setEmailValidationMessage] = useState('')
+
+  const keyboardShowListener = Keyboard.addListener(
+    'keyboardDidShow',
+    () => {
+      setEmailValidationMessage('')
+    }
+  );
+
+  function validInput() {
+    // Email regex
+    const emailRegex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}')
+    const passedTests = []
+
+    // Validate email
+    if (email != "") {
+      if (emailRegex.test(email)) {
+        passedTests.push(true)
+      } else {
+        passedTests.push(false)
+        setEmailValidationMessage('Incorrect email format')
+      }
+    } else {
+      passedTests.push(false)
+      setEmailValidationMessage("Email can't be empty")
+    }
+
+    return passedTests.every(Boolean)
+  }
+
+  const handleSendPasswordResetEmail = () => {
+    setEmailValidationMessage('')
+    if (validInput()) {
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          console.log("Password reset email sent!")
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorMessage)
+        });
+      console.log(true)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -40,7 +87,9 @@ const ResetPasswordScreen = ({ navigation }) => {
             value={email}
             onChangeText={(text) => setEmail(text)} />
         </View>
-        <TouchableOpacity style={styles.button}>
+        <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', marginBottom: 40 }}>{emailValidationMessage}</Text>
+
+        <TouchableOpacity style={styles.button} onPress={handleSendPasswordResetEmail}>
           <Text style={styles.buttonText}>
             Reset password
           </Text>
@@ -93,9 +142,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderRightWidth: 0,
     borderTopWidth: 0,
-    width: '95%',
+    width: '100%',
     marginTop: 20,
-    marginBottom: 40
   },
   input: {
     width: '100%',
