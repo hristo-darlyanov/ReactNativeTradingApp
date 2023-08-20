@@ -119,7 +119,7 @@ const LoginScreen = ({ navigation }) => {
                     <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
                 </View>
                 <View style={styles.forgotPasswordWrapper}>
-                    <TouchableOpacity onPress={() => {}}>
+                    <TouchableOpacity onPress={() => navigation.navigate('ResetPasswordScreen')}>
                         <Text style={styles.resetPasswordText}>Forgot password?</Text>
                     </TouchableOpacity>
                 </View>
