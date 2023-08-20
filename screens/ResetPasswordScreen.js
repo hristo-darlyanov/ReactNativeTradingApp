@@ -8,6 +8,9 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 const ResetPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('')
   const [emailValidationMessage, setEmailValidationMessage] = useState('')
+  const [buttonMessage, setButtonMessage] = useState('Reset password')
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false)
+  const [buttonProps, setButtonProps] = useState({backgroundColor: 'white', borderColor: 'white',})
 
   const keyboardShowListener = Keyboard.addListener(
     'keyboardDidShow',
@@ -40,6 +43,12 @@ const ResetPasswordScreen = ({ navigation }) => {
   const handleSendPasswordResetEmail = () => {
     setEmailValidationMessage('')
     if (validInput()) {
+      // Set button properties
+      setButtonMessage('Password reset email sent!')
+      setIsButtonDisabled(true)
+      setButtonProps({backgroundColor: 'grey', borderColor: 'grey',})
+
+      // Send password reset email
       sendPasswordResetEmail(auth, email)
         .then(() => {
           console.log("Password reset email sent!")
@@ -89,9 +98,9 @@ const ResetPasswordScreen = ({ navigation }) => {
         </View>
         <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', marginBottom: 40 }}>{emailValidationMessage}</Text>
 
-        <TouchableOpacity style={styles.button} onPress={handleSendPasswordResetEmail}>
+        <TouchableOpacity style={[styles.button, {...buttonProps}]} onPress={handleSendPasswordResetEmail} disabled={isButtonDisabled}>
           <Text style={styles.buttonText}>
-            Reset password
+            {buttonMessage}
           </Text>
         </TouchableOpacity>
       </View>
@@ -153,12 +162,10 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   button: {
-    backgroundColor: 'white',
     width: '100%',
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: 'white',
     borderWidth: 2,
     borderRadius: 10
   },
