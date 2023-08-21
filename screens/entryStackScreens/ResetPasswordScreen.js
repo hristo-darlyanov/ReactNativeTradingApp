@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View, Keyboard } from 'r
 import React, { useState } from 'react'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
-import { auth } from '../config/Firebase';
+import { auth } from '../../config/Firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
 
 const ResetPasswordScreen = ({ navigation }) => {
@@ -10,7 +10,7 @@ const ResetPasswordScreen = ({ navigation }) => {
   const [emailValidationMessage, setEmailValidationMessage] = useState('')
   const [buttonMessage, setButtonMessage] = useState('Reset password')
   const [isButtonDisabled, setIsButtonDisabled] = useState(false)
-  const [buttonProps, setButtonProps] = useState({backgroundColor: 'white', borderColor: 'white',})
+  const [buttonProps, setButtonProps] = useState({ backgroundColor: 'white', borderColor: 'white', })
 
   const keyboardShowListener = Keyboard.addListener(
     'keyboardDidShow',
@@ -46,7 +46,7 @@ const ResetPasswordScreen = ({ navigation }) => {
       // Set button properties
       setButtonMessage('Password reset email sent!')
       setIsButtonDisabled(true)
-      setButtonProps({backgroundColor: 'grey', borderColor: 'grey',})
+      setButtonProps({ backgroundColor: 'grey', borderColor: 'grey', })
 
       // Send password reset email
       sendPasswordResetEmail(auth, email)
@@ -98,7 +98,7 @@ const ResetPasswordScreen = ({ navigation }) => {
         </View>
         <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', marginBottom: 40 }}>{emailValidationMessage}</Text>
 
-        <TouchableOpacity style={[styles.button, {...buttonProps}]} onPress={handleSendPasswordResetEmail} disabled={isButtonDisabled}>
+        <TouchableOpacity style={[styles.button, { ...buttonProps }]} onPress={handleSendPasswordResetEmail} disabled={isButtonDisabled}>
           <Text style={styles.buttonText}>
             {buttonMessage}
           </Text>

@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, SafeAreaVie
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useEffect, useState, useRef } from 'react'
-import { auth } from '../config/Firebase';
+import { auth } from '../../config/Firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 const SignUpScreen = ({ navigation }) => {

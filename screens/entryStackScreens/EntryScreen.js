@@ -1,11 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { LineChart } from 'react-native-wagmi-charts';
 import React from 'react'
-import data from '../assets/data/EntryScreenData'
-import { useNavigation } from '@react-navigation/native';
+import data from '../../assets/data/EntryScreenData'
 
 const EntryScreen = ({ navigation }) => {
-
     return (
         <View style={styles.container}>
             <View style={styles.titleWrapper}>

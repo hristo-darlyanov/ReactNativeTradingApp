@@ -1,14 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import EntryScreen from './screens/EntryScreen';
-import LoginScreen from './screens/LoginScreen';
-import SignUpScreen from './screens/SignUpScreen';
-import ResetPasswordScreen from './screens/ResetPasswordScreen';
+import EntryScreen from './screens/entryStackScreens/EntryScreen';
+import LoginScreen from './screens/entryStackScreens/LoginScreen';
+import SignUpScreen from './screens/entryStackScreens/SignUpScreen';
+import ResetPasswordScreen from './screens/entryStackScreens/ResetPasswordScreen';
+import AgentsDashboardScreen from './screens/mainStackScreens/AgentsDashboardScreen';
+import OptionsScreen from './screens/mainStackScreens/OptionsScreen';
+import StatisticsScreen from './screens/mainStackScreens/StatisticsScreen';
 
+// Creating screen navigators
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
+// Stack that is used to log in or sign up a user 
 function EntryStack() {
   return (
     <Stack.Navigator defaultScreenOption={EntryScreen} screenOptions={{ headerShown: false }}>
@@ -20,10 +27,21 @@ function EntryStack() {
   )
 }
 
+// The main screens of the app
+function MainStack() {
+  return (
+    <Tab.Navigator defaultScreenOption={AgentsDashboardScreen}>
+      <Tab.Screen name="AgentsDashboardScreen" component={AgentsDashboardScreen} />
+      <Tab.Screen name="OptionsScreen" component={OptionsScreen} />
+      <Tab.Screen name="StatisticsScreen" component={StatisticsScreen}/>
+    </Tab.Navigator>
+  )
+}
+
 export default function App() {
   return (
     <NavigationContainer>
-      <EntryStack />
+      <MainStack />
     </NavigationContainer>
   );
 }

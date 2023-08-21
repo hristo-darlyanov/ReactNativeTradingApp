@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, Animated, K
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState, useRef } from 'react'
-import { auth } from '../config/Firebase';
+import { auth } from '../../config/Firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const LoginScreen = ({ navigation }) => {
@@ -27,8 +27,8 @@ const LoginScreen = ({ navigation }) => {
     const handeLogin = () => {
         setAreCredentialsValid(0)
         signInWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => {
-                const user = userCredentials.email
+            .then((userCredentials) => {
+                const user = userCredentials.user.email
                 console.log('Successfully signed in user:', user)
             })
             .catch(error => {
