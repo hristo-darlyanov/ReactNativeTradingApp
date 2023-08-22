@@ -35,7 +35,7 @@ const SettingsScreen = () => {
                         <View style={styles.modalButtonWrapper}>
                             <TouchableOpacity
                                 style={styles.modalLogoutButton}
-                                onPress={() => setModalVisible(!modalVisible)}>
+                                onPress={handleSignOut}>
                                 <Text style={styles.modalTextStyle}>Log out</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 10,
         width: '47%',
-        backgroundColor: 'grey'
+        backgroundColor: '#1e1e1e'
     },
     modalButtonWrapper: {
         flexDirection: 'row',

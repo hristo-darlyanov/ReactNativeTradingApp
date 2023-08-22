@@ -33,6 +33,7 @@ const LoginScreen = ({ navigation }) => {
             })
             .catch(error => {
                 setAreCredentialsValid(1)
+                console.log(error.message)
             })
     }
 
