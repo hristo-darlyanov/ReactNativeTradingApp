@@ -15,6 +15,8 @@ import ResetPasswordScreen from './screens/entryStackScreens/ResetPasswordScreen
 import AgentsDashboardScreen from './screens/mainStackScreens/AgentsDashboardScreen';
 import SettingsScreen from './screens/mainStackScreens/SettingsScreen';
 import StatisticsScreen from './screens/mainStackScreens/StatisticsScreen';
+import CreateAgentScreen from './screens/createAgentStackScreens/CreateAgentScreen';
+import { AgentTabContext } from './components/CreatingAgentContext';
 
 // Creating screen navigators
 const Stack = createNativeStackNavigator();
@@ -30,6 +32,15 @@ const AuthenticatedUserProvider = ({ children }) => {
   )
 }
 
+const AgentTabProvider = ({ children }) => {
+  const [isCreatingAgent, setIsCreatingAgent] = useState(false)
+  return (
+    <AgentTabContext.Provider value={{ isCreatingAgent, setIsCreatingAgent }}>
+      {children}
+    </AgentTabContext.Provider>
+  )
+}
+
 // Stack that is used to log in or sign up a user 
 function EntryStack() {
   return (
@@ -38,6 +49,14 @@ function EntryStack() {
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
       <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function CreateAgentStack() {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="CreateAgentScreen" component={CreateAgentScreen} />
     </Stack.Navigator>
   )
 }
@@ -57,7 +76,7 @@ function MainStack() {
       tabBarColor="black"
       shifting={false}
       labeled={true}
-      >
+    >
       <Tab.Screen
         name="AgentsDashboardScreen"
         component={AgentsDashboardScreen}
@@ -74,22 +93,23 @@ function MainStack() {
             <MaterialIcons name="dashboard" color={dashboardIconColor} size={26} />
           ),
         }} />
-      <Tab.Screen 
-      name="StatisticsScreen" 
-      component={StatisticsScreen} 
-      listeners={{
-        tabPress: e => {
-          setSettingsIconColor('white')
-          setStatisticsIconColor('#1e1e1e')
-          setDashboardIconColor('white')
-        },
-      }}
-      options={{ 
-        tabBarLabel: "Statistics",
-        tabBarIcon: ({ color }) => (
-          <MaterialIcons name="show-chart" color={statisticsIconColor} size={26} />
-        ), }} />
-        <Tab.Screen
+      <Tab.Screen
+        name="StatisticsScreen"
+        component={StatisticsScreen}
+        listeners={{
+          tabPress: e => {
+            setSettingsIconColor('white')
+            setStatisticsIconColor('#1e1e1e')
+            setDashboardIconColor('white')
+          },
+        }}
+        options={{
+          tabBarLabel: "Statistics",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="show-chart" color={statisticsIconColor} size={26} />
+          ),
+        }} />
+      <Tab.Screen
         name="SettingsScreen"
         component={SettingsScreen}
         listeners={{
@@ -110,6 +130,8 @@ function MainStack() {
 }
 
 function RootNavigation() {
+  const { isCreatingAgent, setIsCreatingAgent } = useContext(AgentTabContext)
+  let currentStack;
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [loading, setLoading] = useState(true)
   useEffect(() => {
@@ -131,18 +153,28 @@ function RootNavigation() {
       </View>
     )
   }
+  if (user) {
+    if (!isCreatingAgent) {
+      currentStack = <MainStack />
+    } else {
+      currentStack = <CreateAgentStack />
+    }
+  } else {
+    currentStack = <EntryStack />
+  }
   return (
     <NavigationContainer>
-      {user ? <MainStack /> : <EntryStack />}
+      {currentStack}
     </NavigationContainer>
   )
 }
 
-
 export default function App() {
   return (
     <AuthenticatedUserProvider>
-      <RootNavigation />
+      <AgentTabProvider>
+        <RootNavigation />
+      </AgentTabProvider>
     </AuthenticatedUserProvider>
   );
 }
