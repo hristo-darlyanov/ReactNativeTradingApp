@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, Animated, Keyboard } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import { AgentTabContext } from '../../components/CreatingAgentContext';
+import { CreateAgentTabContext } from '../../components/PublicContexts';
 import React, { useRef, useContext } from 'react'
 
 const CreateAgentScreen = () => {
-    const { isCreatingAgent, setIsCreatingAgent } = useContext(AgentTabContext)
+    const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
     const fadeAnim = useRef(new Animated.Value(1)).current;
 
     const fadeIn = () => {

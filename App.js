@@ -7,6 +7,7 @@ import { ActivityIndicator } from 'react-native';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './config/Firebase';
+import { CreateAgentTabContext } from './components/PublicContexts';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import EntryScreen from './screens/entryStackScreens/EntryScreen';
 import LoginScreen from './screens/entryStackScreens/LoginScreen';
@@ -16,7 +17,8 @@ import AgentsDashboardScreen from './screens/mainStackScreens/AgentsDashboardScr
 import SettingsScreen from './screens/mainStackScreens/SettingsScreen';
 import StatisticsScreen from './screens/mainStackScreens/StatisticsScreen';
 import CreateAgentScreen from './screens/createAgentStackScreens/CreateAgentScreen';
-import { AgentTabContext } from './components/CreatingAgentContext';
+import LinkedAccountsMainScreen from './screens/settingsStackScreens/LinkedAccountsMainScreen';
+import LinkedAccountsCreateScreen from './screens/settingsStackScreens/LinkedAccountsCreateScreen';
 
 // Creating screen navigators
 const Stack = createNativeStackNavigator();
@@ -32,12 +34,12 @@ const AuthenticatedUserProvider = ({ children }) => {
   )
 }
 
-const AgentTabProvider = ({ children }) => {
+const CreateAgentTabProvider = ({ children }) => {
   const [isCreatingAgent, setIsCreatingAgent] = useState(false)
   return (
-    <AgentTabContext.Provider value={{ isCreatingAgent, setIsCreatingAgent }}>
+    <CreateAgentTabContext.Provider value={{ isCreatingAgent, setIsCreatingAgent }}>
       {children}
-    </AgentTabContext.Provider>
+    </CreateAgentTabContext.Provider>
   )
 }
 
@@ -55,8 +57,17 @@ function EntryStack() {
 
 function CreateAgentStack() {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="CreateAgentScreen" component={CreateAgentScreen} />
+    </Stack.Navigator>
+  )
+}
+
+function SettingsStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="LinkedAccountsMainScreen" component={LinkedAccountsMainScreen} />
+      <Stack.Screen name="LinkedAccountsCreateScreen" component={LinkedAccountsCreateScreen} />
     </Stack.Navigator>
   )
 }
@@ -129,8 +140,17 @@ function MainStack() {
   )
 }
 
+function AllMainScreenStack() {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="MainStack" component={MainStack}/>
+      <Stack.Screen name="SettingsStack" component={SettingsStack}/>
+    </Stack.Navigator>
+  )
+}
+
 function RootNavigation() {
-  const { isCreatingAgent, setIsCreatingAgent } = useContext(AgentTabContext)
+  const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
   let currentStack;
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [loading, setLoading] = useState(true)
@@ -155,7 +175,7 @@ function RootNavigation() {
   }
   if (user) {
     if (!isCreatingAgent) {
-      currentStack = <MainStack />
+      currentStack = <AllMainScreenStack />
     } else {
       currentStack = <CreateAgentStack />
     }
@@ -172,9 +192,9 @@ function RootNavigation() {
 export default function App() {
   return (
     <AuthenticatedUserProvider>
-      <AgentTabProvider>
-        <RootNavigation />
-      </AgentTabProvider>
+        <CreateAgentTabProvider>
+          <RootNavigation />
+        </CreateAgentTabProvider>
     </AuthenticatedUserProvider>
   );
 }

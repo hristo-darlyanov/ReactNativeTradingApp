@@ -6,7 +6,7 @@ import { auth } from '../../config/Firebase';
 import LeftPointingArrow from '../../components/LeftPointingArrow';
 import React, { useState } from 'react'
 
-const SettingsScreen = () => {
+const SettingsScreen = ({navigation}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const handleSignOut = () => {
@@ -79,7 +79,7 @@ const SettingsScreen = () => {
                     <Text style={styles.buttonText}>Change password</Text>
                     <LeftPointingArrow />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("SettingsStack", {screen: 'LinkedAccountsMainScreen'})}>
                     <Text style={styles.buttonText}>Linked accounts</Text>
                     <LeftPointingArrow />
                 </TouchableOpacity>

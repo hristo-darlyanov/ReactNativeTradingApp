@@ -1,10 +1,10 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import { AgentTabContext } from '../../components/CreatingAgentContext';
+import { CreateAgentTabContext } from '../../components/PublicContexts';
 import React, { useContext } from 'react'
 
 const AgentsDashboardScreen = () => {
-  const {isCreatingAgent, setIsCreatingAgent} = useContext(AgentTabContext)
+  const {isCreatingAgent, setIsCreatingAgent} = useContext(CreateAgentTabContext)
   return (
     <View style={styles.container}>
       <View style={styles.headerWrapper}>
