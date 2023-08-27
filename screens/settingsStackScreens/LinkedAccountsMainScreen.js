@@ -17,7 +17,10 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
                         <View style={styles.modalButtonWrapper}>
-                            <TouchableOpacity style={styles.modalButton}>
+                            <TouchableOpacity style={styles.modalButton} onPress={() => {
+                                setModalVisible(false)
+                                navigation.navigate('LinkBinanceAccount')
+                            }}>
                                 <Image style={styles.modalButtonImage} source={require('../../assets/exchange-logos/Binance_Logo.png')} />
                             </TouchableOpacity>
                         </View>
