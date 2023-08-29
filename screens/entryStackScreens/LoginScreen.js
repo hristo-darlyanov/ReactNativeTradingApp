@@ -200,7 +200,9 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         fontSize: 18,
         marginBottom: 10,
-        color: 'white'
+        color: 'white',
+        flex: 1,
+        marginRight: 10
     },
     emailContainer: {
         flexDirection: 'row',
