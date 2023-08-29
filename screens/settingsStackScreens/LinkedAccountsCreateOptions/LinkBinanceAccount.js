@@ -2,6 +2,8 @@ import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity } from 'reac
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
+import CryptoJS from 'crypto-js';
+import { AccountInformationFutures } from '../../../BinanceAccountController';
 
 const LinkBinanceAccount = ({ navigation }) => {
     const [areCredentialsValid, setAreCredentialsValid] = useState(0)
@@ -10,22 +12,7 @@ const LinkBinanceAccount = ({ navigation }) => {
 
     const handleLinkingAccount = async () => {
         setAreCredentialsValid(0)
-        const Binance = require('node-binance-api');
-        const binance = new Binance().options({
-            APIKEY: apiKey,
-            APISECRET: apiSecret,
-            test: true,
-            urls: {
-                base: 'https://testnet.binancefuture.com/'
-            }
-        });
-        await binance.futuresAccount().then(() => {
-            console.log(true)
-        })
-        .catch(error => {
-            console.log(false)
-            setAreCredentialsValid(1)
-        })
+        console.log(await AccountInformationFutures(apiKey, apiSecret))
     }
 
     return (
@@ -87,7 +74,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                 <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
             </View>
             <View style={styles.linkAccountButtonWrapper}>
-                <TouchableOpacity style={styles.linkAccountButton}>
+                <TouchableOpacity style={styles.linkAccountButton} onPress={handleLinkingAccount}>
                     <Text style={styles.linkAccountButtonText}>Link account</Text>
                 </TouchableOpacity>
             </View>
@@ -141,6 +128,8 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginBottom: 3,
         color: 'white',
+        flex: 1,
+        marginRight: 10
     },
     apiKeyContainer: {
         flexDirection: 'row',
