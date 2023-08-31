@@ -46,7 +46,7 @@ const ResetPasswordScreen = ({ navigation }) => {
       // Set button properties
       setButtonMessage('Password reset email sent!')
       setIsButtonDisabled(true)
-      setButtonProps({ backgroundColor: 'grey', borderColor: 'grey', })
+      setButtonProps({ backgroundColor: 'grey', borderColor: 'grey'})
 
       // Send password reset email
       sendPasswordResetEmail(auth, email)

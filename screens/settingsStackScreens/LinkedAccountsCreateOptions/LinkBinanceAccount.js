@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Keyboard, Modal } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
@@ -6,17 +6,64 @@ import CryptoJS from 'crypto-js';
 import { AccountInformationFutures } from '../../../BinanceAccountController';
 
 const LinkBinanceAccount = ({ navigation }) => {
+    const keyboardShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        () => {
+            setAreCredentialsValid(0)
+        }
+    );
+
     const [areCredentialsValid, setAreCredentialsValid] = useState(0)
-    const [apiKey, setApiKey] = useState('')
-    const [apiSecret, setApiSecret] = useState('')
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false)
+    const [buttonProps, setButtonProps] = useState({ backgroundColor: 'white', borderColor: 'white', })
+    const [buttonMessage, setButtonMessage] = useState('Link account')
+    const [name, setName] = useState('')
+    const [apiKey, setApiKey] = useState('3eb009ef8688a5bbba240bf9cfabdf090f0d6c20f61695a4e25a97310621a16b')
+    const [apiSecret, setApiSecret] = useState('fd54011c3e4b75091690389240fbbd30a952b520c3087134641dabfbb2fe95cb')
+    const [modalVisible, setModalVisible] = useState(false);
 
     const handleLinkingAccount = async () => {
         setAreCredentialsValid(0)
-        console.log(await AccountInformationFutures(apiKey, apiSecret))
+        await AccountInformationFutures(apiKey, apiSecret)
+            .then(data => {
+                const temp = data.assets[0].asset
+                setIsButtonDisabled(true)
+                setButtonProps({ backgroundColor: 'grey', borderColor: 'grey' })
+                setButtonMessage('Done!')
+                setModalVisible(true)
+            })
+            .catch(error => {
+                setAreCredentialsValid(1)
+            })
+    }
+    function DoneMessage() {
+        return (
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    Alert.alert('Modal has been closed.');
+                    setModalVisible(!modalVisible);
+                }}>
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalText}>Account linked successfully</Text>
+                        <TouchableOpacity style={styles.modalButton} onPress={() => {
+                            setModalVisible(false)
+                            navigation.goBack()
+                        }}>
+                            <Text style={styles.modalButtonText}>Go back</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        )
     }
 
     return (
         <View style={styles.container}>
+            <DoneMessage />
             <View
                 style={styles.backButton}>
                 <IconAntDesign.Button
@@ -33,6 +80,23 @@ const LinkBinanceAccount = ({ navigation }) => {
                 <Image style={styles.image} source={require('../../../assets/exchange-logos/Binance_Logo.png')} />
             </View>
             <View style={styles.separatorLine}></View>
+            <View style={[styles.inputWrapper, { marginBottom: 20 }]}>
+                <Text style={styles.credentialsText}>Enter name for the account:</Text>
+                <View style={styles.apiKeyContainer}>
+                    <IconOcticons
+                        name="pencil"
+                        size={30}
+                        color="white"
+                        style={{ marginRight: 10, marginLeft: 20 }} />
+                    <TextInput
+                        style={styles.input}
+                        placeholderTextColor='grey'
+                        autoCapitalize='none'
+                        autoCorrect={false}
+                        value={name}
+                        onChangeText={(text) => setName(text)} />
+                </View>
+            </View>
             <View style={styles.inputWrapper}>
                 <Text style={styles.credentialsText}>Enter api Key:</Text>
                 <View style={styles.apiKeyContainer}>
@@ -74,8 +138,8 @@ const LinkBinanceAccount = ({ navigation }) => {
                 <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
             </View>
             <View style={styles.linkAccountButtonWrapper}>
-                <TouchableOpacity style={styles.linkAccountButton} onPress={handleLinkingAccount}>
-                    <Text style={styles.linkAccountButtonText}>Link account</Text>
+                <TouchableOpacity style={[styles.linkAccountButton, { ...buttonProps }]} onPress={handleLinkingAccount} disabled={isButtonDisabled}>
+                    <Text style={styles.linkAccountButtonText}>{buttonMessage}</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -162,7 +226,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         alignItems: 'center',
-        paddingVertical: 10
+        paddingVertical: 10,
+        marginTop: 20
     },
     linkAccountButtonText: {
         fontSize: 30,
@@ -172,5 +237,40 @@ const styles = StyleSheet.create({
         width: '80%',
         alignSelf: 'center',
         marginTop: 10
-    }
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalView: {
+        backgroundColor: 'black',
+        borderRadius: 10,
+        borderColor: 'grey',
+        borderWidth: 1,
+        width: '93%',
+        height: '20%',
+        alignItems: 'center',
+    },
+    modalText: {
+        color: 'white',
+        fontSize: 27,
+        marginTop: 20
+    },
+    modalButton: {
+        width: '90%',
+        padding: 5,
+        borderWidth: 2,
+        borderColor: 'white',
+        borderRadius: 5,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 0,
+        marginBottom: 20
+    },
+    modalButtonText: {
+        fontSize: 30,
+        fontWeight: 'bold'
+    },
 })

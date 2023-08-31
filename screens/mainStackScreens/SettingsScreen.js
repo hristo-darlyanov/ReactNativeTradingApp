@@ -41,7 +41,7 @@ const SettingsScreen = ({navigation}) => {
                             <TouchableOpacity
                                 style={styles.modalCloseButton}
                                 onPress={() => setModalVisible(!modalVisible)}>
-                                <Text style={styles.modalTextStyle}>Close</Text>
+                                <Text style={styles.modalTextStyle}>Cancel</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

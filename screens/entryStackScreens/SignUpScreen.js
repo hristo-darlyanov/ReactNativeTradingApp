@@ -6,12 +6,10 @@ import { auth } from '../../config/Firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 const SignUpScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmationPassword, setConfirmationPassword] = useState('')
 
-  const [usernameValidationMessage, setUsernameValidationMessage] = useState('')
   const [emailValidationMessage, setEmailValidationMessage] = useState('')
   const [passwordValidationMessage, setPasswordValidationMessage] = useState('')
   const [confirmPasswordValidationMessage, setConfirmPasswordValidationMessage] = useState('')
@@ -20,7 +18,6 @@ const SignUpScreen = ({ navigation }) => {
     'keyboardDidShow',
     () => {
       fadeOut()
-      setUsernameValidationMessage('')
       setEmailValidationMessage('')
       setPasswordValidationMessage('')
       setConfirmPasswordValidationMessage('')
@@ -34,29 +31,12 @@ const SignUpScreen = ({ navigation }) => {
   );
 
   function validInput() {
-    // Username regex
-    const usernameBetweenEightAndTwentyCharactersRegex = new RegExp(/^(?=.{3,12}$)/i)
-    const usernameHasValidCharactersRegex = new RegExp(/(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/i)
     // Email regex
     const emailRegex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}')
     // Password regex
     const passwordRegex = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/)
 
     const passedTests = []
-    // Validate username
-    if (username != "") {
-      if (usernameHasValidCharactersRegex.test(username)) {
-        if (usernameBetweenEightAndTwentyCharactersRegex.test(username)) {
-          passedTests.push(true)
-        } else {
-          setUsernameValidationMessage('Username must be 3-12 characters long')
-          passedTests.push(false)
-        }
-      } else {
-        setUsernameValidationMessage('Username must not contain special characters')
-        passedTests.push(false)
-      }
-    }
 
     // Validate email
     if (email != "") {
@@ -91,7 +71,6 @@ const SignUpScreen = ({ navigation }) => {
   }
 
   const handleSignUp = () => {
-    setUsernameValidationMessage('')
     setEmailValidationMessage('')
     setPasswordValidationMessage('')
     setConfirmPasswordValidationMessage('')
@@ -102,17 +81,6 @@ const SignUpScreen = ({ navigation }) => {
         .then((userCredentials) => {
           const user = userCredentials.user.email
           console.log('Successfully registered user:', user)
-          // Set user's displayName
-          if (username != "") {
-            updateProfile(auth.currentUser, {
-              displayName: username
-            })
-              .then(() => {
-                console.log("Set displayname for user")
-              }).catch((error) => {
-                console.log(error.message)
-              });
-          }
         })
         .catch(error => console.log(error.message))
     }
@@ -157,24 +125,6 @@ const SignUpScreen = ({ navigation }) => {
           <Text style={styles.titleText}>Create account</Text>
         </Animated.View>
         <SafeAreaView style={styles.inputWrapper}>
-
-          {/* Username field */}
-
-          <View style={styles.userContainer}>
-            <IconAntDesign
-              name="user"
-              size={30}
-              color="white"
-              style={{ marginRight: 10 }} />
-            <TextInput
-              style={styles.input}
-              placeholder='Enter username'
-              placeholderTextColor='grey'
-              autoCapitalize='none'
-              value={username}
-              onChangeText={(text) => setUsername(text)} />
-          </View>
-          <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{usernameValidationMessage}</Text>
 
           {/* Email field */}
 
