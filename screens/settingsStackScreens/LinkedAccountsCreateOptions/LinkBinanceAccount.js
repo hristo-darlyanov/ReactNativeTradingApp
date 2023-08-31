@@ -2,8 +2,9 @@ import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Keyboard, M
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
-import CryptoJS from 'crypto-js';
 import { AccountInformationFutures } from '../../../BinanceAccountController';
+import { db, auth } from '../../../config/Firebase';
+import { setDoc, doc } from 'firebase/firestore';
 
 const LinkBinanceAccount = ({ navigation }) => {
     const keyboardShowListener = Keyboard.addListener(
@@ -18,8 +19,8 @@ const LinkBinanceAccount = ({ navigation }) => {
     const [buttonProps, setButtonProps] = useState({ backgroundColor: 'white', borderColor: 'white', })
     const [buttonMessage, setButtonMessage] = useState('Link account')
     const [name, setName] = useState('')
-    const [apiKey, setApiKey] = useState('3eb009ef8688a5bbba240bf9cfabdf090f0d6c20f61695a4e25a97310621a16b')
-    const [apiSecret, setApiSecret] = useState('fd54011c3e4b75091690389240fbbd30a952b520c3087134641dabfbb2fe95cb')
+    const [apiKey, setApiKey] = useState('')
+    const [apiSecret, setApiSecret] = useState('')
     const [modalVisible, setModalVisible] = useState(false);
 
     const handleLinkingAccount = async () => {
@@ -31,11 +32,24 @@ const LinkBinanceAccount = ({ navigation }) => {
                 setButtonProps({ backgroundColor: 'grey', borderColor: 'grey' })
                 setButtonMessage('Done!')
                 setModalVisible(true)
+                AddBinanceAccountForUser()
             })
             .catch(error => {
                 setAreCredentialsValid(1)
             })
     }
+
+    async function AddBinanceAccountForUser() {
+        await setDoc(doc(db, 'users', auth.currentUser.uid, 'binanceLinkedAccounts', name), {
+            apiKey: apiKey,
+            apiSecret: apiSecret
+        })
+            .then(() => {
+                console.log("Added account successfully")
+            })
+            .catch(error => console.log(error))
+    }
+
     function DoneMessage() {
         return (
             <Modal
