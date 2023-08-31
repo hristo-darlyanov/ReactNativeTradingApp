@@ -30,7 +30,7 @@ const SignUpScreen = ({ navigation }) => {
     }
   );
 
-  function validInput() {
+  function ValidInput() {
     // Email regex
     const emailRegex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}')
     // Password regex
@@ -39,7 +39,7 @@ const SignUpScreen = ({ navigation }) => {
     const passedTests = []
 
     // Validate email
-    if (email != "") {
+    if (email.replace(/\s/g,"") != "") {
       if (emailRegex.test(email)) {
         passedTests.push(true)
       } else {
@@ -75,7 +75,7 @@ const SignUpScreen = ({ navigation }) => {
     setPasswordValidationMessage('')
     setConfirmPasswordValidationMessage('')
 
-    if (validInput()) {
+    if (ValidInput()) {
       // Create user
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredentials) => {

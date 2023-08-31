@@ -19,13 +19,13 @@ const ResetPasswordScreen = ({ navigation }) => {
     }
   );
 
-  function validInput() {
+  function ValidInput() {
     // Email regex
     const emailRegex = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}')
     const passedTests = []
 
     // Validate email
-    if (email != "") {
+    if (email.replace(/\s/g,"") != "") {
       if (emailRegex.test(email)) {
         passedTests.push(true)
       } else {
@@ -42,7 +42,7 @@ const ResetPasswordScreen = ({ navigation }) => {
 
   const handleSendPasswordResetEmail = () => {
     setEmailValidationMessage('')
-    if (validInput()) {
+    if (ValidInput()) {
       // Set button properties
       setButtonMessage('Password reset email sent!')
       setIsButtonDisabled(true)

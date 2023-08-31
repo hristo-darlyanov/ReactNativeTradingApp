@@ -10,33 +10,68 @@ const LinkBinanceAccount = ({ navigation }) => {
     const keyboardShowListener = Keyboard.addListener(
         'keyboardDidShow',
         () => {
-            setAreCredentialsValid(0)
+            setNameErrorMessage('')
+            setApiKeyErrorMessage('')
+            setApiSecretErrorMessage('')
         }
     );
 
-    const [areCredentialsValid, setAreCredentialsValid] = useState(0)
     const [isButtonDisabled, setIsButtonDisabled] = useState(false)
     const [buttonProps, setButtonProps] = useState({ backgroundColor: 'white', borderColor: 'white', })
     const [buttonMessage, setButtonMessage] = useState('Link account')
     const [name, setName] = useState('')
-    const [apiKey, setApiKey] = useState('')
-    const [apiSecret, setApiSecret] = useState('')
+    const [apiKey, setApiKey] = useState('3eb009ef8688a5bbba240bf9cfabdf090f0d6c20f61695a4e25a97310621a16b')
+    const [apiSecret, setApiSecret] = useState('fd54011c3e4b75091690389240fbbd30a952b520c3087134641dabfbb2fe95cb')
     const [modalVisible, setModalVisible] = useState(false);
+    const [nameErrorMessage, setNameErrorMessage] = useState('')
+    const [apiKeyErrorMessage, setApiKeyErrorMessage] = useState('')
+    const [apiSecretErrorMessage, setApiSecretErrorMessage] = useState('')
+
+    function ValidInput() {
+        const passedTests = []
+        if (name.replace(/\s/g,"") != "") {
+            passedTests.push(true)
+        } else {
+            setNameErrorMessage('Name cannot be empty')
+            passedTests.push(false)
+        }
+
+        if (apiKey.replace(/\s/g,"") != "") {
+            passedTests.push(true)
+        } else {
+            setApiKeyErrorMessage('Api key cannot be empty')
+            passedTests.push(false)
+        }
+
+        if (apiSecret.replace(/\s/g,"") != "") {
+            passedTests.push(true)
+        } else {
+            setApiSecretErrorMessage('Api secret cannot be empty')
+            passedTests.push(false)
+        }
+
+        return passedTests.every(Boolean)
+    }
 
     const handleLinkingAccount = async () => {
-        setAreCredentialsValid(0)
-        await AccountInformationFutures(apiKey, apiSecret)
-            .then(data => {
-                const temp = data.assets[0].asset
-                setIsButtonDisabled(true)
-                setButtonProps({ backgroundColor: 'grey', borderColor: 'grey' })
-                setButtonMessage('Done!')
-                setModalVisible(true)
-                AddBinanceAccountForUser()
-            })
-            .catch(error => {
-                setAreCredentialsValid(1)
-            })
+        setNameErrorMessage('')
+        setApiKeyErrorMessage('')
+        setApiSecretErrorMessage('')
+        if (ValidInput()) {
+            await AccountInformationFutures(apiKey, apiSecret)
+                .then(data => {
+                    const temp = data.assets[0].asset
+                    setIsButtonDisabled(true)
+                    setButtonProps({ backgroundColor: 'grey', borderColor: 'grey' })
+                    setButtonMessage('Done!')
+                    setModalVisible(true)
+                    AddBinanceAccountForUser()
+                })
+                .catch(error => {
+                    setApiKeyErrorMessage('Incorrect Credentials')
+                    setApiSecretErrorMessage('Incorrect Credentials')
+                })
+        }
     }
 
     async function AddBinanceAccountForUser() {
@@ -94,7 +129,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                 <Image style={styles.image} source={require('../../../assets/exchange-logos/Binance_Logo.png')} />
             </View>
             <View style={styles.separatorLine}></View>
-            <View style={[styles.inputWrapper, { marginBottom: 20 }]}>
+            <View style={styles.inputWrapper}>
                 <Text style={styles.credentialsText}>Enter name for the account:</Text>
                 <View style={styles.apiKeyContainer}>
                     <IconOcticons
@@ -110,6 +145,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                         value={name}
                         onChangeText={(text) => setName(text)} />
                 </View>
+                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{nameErrorMessage}</Text>
             </View>
             <View style={styles.inputWrapper}>
                 <Text style={styles.credentialsText}>Enter api Key:</Text>
@@ -129,7 +165,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                         value={apiKey}
                         onChangeText={(text) => setApiKey(text)} />
                 </View>
-                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
+                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{apiKeyErrorMessage}</Text>
             </View>
             <View style={styles.inputWrapper}>
                 <Text style={styles.credentialsText}>Enter api secret:</Text>
@@ -149,7 +185,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                         value={apiSecret}
                         onChangeText={(text) => setApiSecret(text)} />
                 </View>
-                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start', opacity: areCredentialsValid }}>Incorrect credentials</Text>
+                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{apiSecretErrorMessage}</Text>
             </View>
             <View style={styles.linkAccountButtonWrapper}>
                 <TouchableOpacity style={[styles.linkAccountButton, { ...buttonProps }]} onPress={handleLinkingAccount} disabled={isButtonDisabled}>
