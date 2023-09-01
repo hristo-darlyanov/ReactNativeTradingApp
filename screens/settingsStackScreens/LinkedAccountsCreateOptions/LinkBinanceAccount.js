@@ -4,7 +4,7 @@ import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
 import { AccountInformationFutures } from '../../../BinanceAccountController';
 import { db, auth } from '../../../config/Firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { setDoc, doc, addDoc, collection } from 'firebase/firestore';
 
 const LinkBinanceAccount = ({ navigation }) => {
     const keyboardShowListener = Keyboard.addListener(
@@ -20,8 +20,8 @@ const LinkBinanceAccount = ({ navigation }) => {
     const [buttonProps, setButtonProps] = useState({ backgroundColor: 'white', borderColor: 'white', })
     const [buttonMessage, setButtonMessage] = useState('Link account')
     const [name, setName] = useState('')
-    const [apiKey, setApiKey] = useState('3eb009ef8688a5bbba240bf9cfabdf090f0d6c20f61695a4e25a97310621a16b')
-    const [apiSecret, setApiSecret] = useState('fd54011c3e4b75091690389240fbbd30a952b520c3087134641dabfbb2fe95cb')
+    const [apiKey, setApiKey] = useState('')
+    const [apiSecret, setApiSecret] = useState('')
     const [modalVisible, setModalVisible] = useState(false);
     const [nameErrorMessage, setNameErrorMessage] = useState('')
     const [apiKeyErrorMessage, setApiKeyErrorMessage] = useState('')
@@ -29,21 +29,21 @@ const LinkBinanceAccount = ({ navigation }) => {
 
     function ValidInput() {
         const passedTests = []
-        if (name.replace(/\s/g,"") != "") {
+        if (name.replace(/\s/g, "") != "") {
             passedTests.push(true)
         } else {
             setNameErrorMessage('Name cannot be empty')
             passedTests.push(false)
         }
 
-        if (apiKey.replace(/\s/g,"") != "") {
+        if (apiKey.replace(/\s/g, "") != "") {
             passedTests.push(true)
         } else {
             setApiKeyErrorMessage('Api key cannot be empty')
             passedTests.push(false)
         }
 
-        if (apiSecret.replace(/\s/g,"") != "") {
+        if (apiSecret.replace(/\s/g, "") != "") {
             passedTests.push(true)
         } else {
             setApiSecretErrorMessage('Api secret cannot be empty')
@@ -75,9 +75,12 @@ const LinkBinanceAccount = ({ navigation }) => {
     }
 
     async function AddBinanceAccountForUser() {
-        await setDoc(doc(db, 'users', auth.currentUser.uid, 'binanceLinkedAccounts', name), {
-            apiKey: apiKey,
-            apiSecret: apiSecret
+        await addDoc(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'), {
+            [name]: {
+                exchange: 'binance',
+                apiKey: apiKey,
+                apiSecret: apiSecret
+            }
         })
             .then(() => {
                 console.log("Added account successfully")
