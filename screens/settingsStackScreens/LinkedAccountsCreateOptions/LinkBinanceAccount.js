@@ -4,7 +4,7 @@ import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
 import React, { useState } from 'react'
 import { AccountInformationFutures } from '../../../BinanceAccountController';
 import { db, auth } from '../../../config/Firebase';
-import { setDoc, doc, addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 
 const LinkBinanceAccount = ({ navigation }) => {
     const keyboardShowListener = Keyboard.addListener(
@@ -59,13 +59,13 @@ const LinkBinanceAccount = ({ navigation }) => {
         setApiSecretErrorMessage('')
         if (ValidInput()) {
             await AccountInformationFutures(apiKey, apiSecret)
-                .then(data => {
+                .then(async data => {
                     const temp = data.assets[0].asset
                     setIsButtonDisabled(true)
                     setButtonProps({ backgroundColor: 'grey', borderColor: 'grey' })
                     setButtonMessage('Done!')
+                    await AddBinanceAccountForUser()
                     setModalVisible(true)
-                    AddBinanceAccountForUser()
                 })
                 .catch(error => {
                     setApiKeyErrorMessage('Incorrect Credentials')
@@ -76,11 +76,10 @@ const LinkBinanceAccount = ({ navigation }) => {
 
     async function AddBinanceAccountForUser() {
         await addDoc(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'), {
-            [name]: {
-                exchange: 'binance',
-                apiKey: apiKey,
-                apiSecret: apiSecret
-            }
+            name: name,
+            exchange: 'binance',
+            apiKey: apiKey,
+            apiSecret: apiSecret
         })
             .then(() => {
                 console.log("Added account successfully")
@@ -103,7 +102,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                         <Text style={styles.modalText}>Account linked successfully</Text>
                         <TouchableOpacity style={styles.modalButton} onPress={() => {
                             setModalVisible(false)
-                            navigation.goBack()
+                            navigation.navigate("SettingsStack", {screen:'LinkedAccountsMainScreen'})
                         }}>
                             <Text style={styles.modalButtonText}>Go back</Text>
                         </TouchableOpacity>

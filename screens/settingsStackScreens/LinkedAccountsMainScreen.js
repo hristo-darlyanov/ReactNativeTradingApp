@@ -1,9 +1,28 @@
-import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, Image, FlatList } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useState } from 'react'
+import { db, auth } from '../../config/Firebase'
+import { collection, doc, getDocs, query, onSnapshot } from 'firebase/firestore';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
 
 const LinkedAccountsMainScreen = ({ navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
+    const [data, setData] = useState([])
+
+    useLayoutEffect(() => {
+        const q = query(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'))
+        const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
+            setData(updatedQuery.docs.map(item => ({
+                name: item.data().name,
+                exchange: item.data().exchange,
+                apiKey: item.data().apiKey,
+            })))
+        })
+            
+        return snapShotUnsubscribe
+    }, [])
+
     function AccountOptions() {
         return (
             <Modal
@@ -59,8 +78,19 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                 />
             </View>
             <View style={styles.separatorLine}></View>
-            <ScrollView contentContainerStyle={styles.contentWrapper}>
-            </ScrollView>
+            <SafeAreaView>
+                <FlatList 
+                    keyExtractor={(item) => item.id}
+                    data={data}
+                    renderItem={({item}) => (
+                        <LinkedAccountInfoCard
+                        name={item.name}
+                        exchange={item.exchange}
+                        apiKey={item.apiKey}
+                        />
+                    )}
+                    />
+            </SafeAreaView>
         </View>
     )
 }
@@ -93,7 +123,7 @@ const styles = StyleSheet.create({
         width: '90%',
         backgroundColor: 'grey',
         height: 1,
-        marginBottom: '2%',
+        marginBottom: '0%',
         marginTop: '2%',
         alignSelf: 'center'
     },
