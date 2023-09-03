@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, Image, FlatList } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import React, { useLayoutEffect, useState, useRef, useMemo } from 'react'
+import React, { useLayoutEffect, useState, useRef, useMemo, useEffect } from 'react'
 import { db, auth } from '../../config/Firebase'
 import { collection, doc, getDocs, query, onSnapshot } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,13 +8,24 @@ import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const LinkedAccountsMainScreen = ({ navigation }) => {
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false)
     const [data, setData] = useState([])
+    const [currentlySelectedAccount, setCurrentlySelectedAccount] = useState(null)
+    const [image, setImage] = useState(null)
     const bottomSheetModalRef = useRef(null)
     const snapPoints = useMemo(() => ['30%'], [])
-    const openModal = () => {
-        bottomSheetModalRef.current.present();
+    const openModal = ({ item }) => {
+        if (item.exchange == 'binance') {
+             setImage(require('../../assets/exchange-logos/Binance_Icon.png'))
+        }
+        setCurrentlySelectedAccount(item)
     }
+
+    useEffect(() => {
+        if (currentlySelectedAccount != null) {
+            bottomSheetModalRef.current.present()
+        }
+    }, [currentlySelectedAccount])
 
     function BottomSheet() {
         return (
@@ -33,7 +44,10 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
             >
                 <View style={styles.bottomSheetContainer}>
                     <View style={styles.info}>
-
+                        <Image style={styles.bottomSheetImage} source={image} />
+                        <View>
+                            <Text style={{color: 'white'}}>{currentlySelectedAccount?.name}</Text>
+                        </View>
                     </View>
                 </View>
             </BottomSheetModal>
@@ -119,7 +133,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                                 name={item.name}
                                 exchange={item.exchange}
                                 apiKey={item.apiKey}
-                                onPress={openModal}
+                                onPress={() => openModal({item})}
                             />
                         )}
                     />
@@ -248,5 +262,9 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         backgroundColor: '#1e1e1e',
+    },
+    bottomSheetImage: {
+        height: 40,
+        width: 40
     }
 })
