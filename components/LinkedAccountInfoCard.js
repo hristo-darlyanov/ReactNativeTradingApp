@@ -1,17 +1,18 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
-import React from 'react'
+import React, { useRef, useMemo } from 'react'
+import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
 
-const LinkedAccountInfoCard = ({ name, exchange, apiKey }) => {
+const LinkedAccountInfoCard = ({ name, exchange, apiKey, onPress }) => {
     let image = null
     if (exchange == 'binance') {
         image = binanceIcon
     }
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button}>
-                <Image style={styles.image} source={image}/>
+            <TouchableOpacity style={styles.button} onPress={onPress}>
+                <Image style={styles.image} source={image} />
                 <View style={styles.textWrapper}>
                     <Text style={styles.nameText}>{name}</Text>
                     <Text style={styles.apiKeyText}>Api key: {apiKey.substring(0, 4)}XXXX</Text>

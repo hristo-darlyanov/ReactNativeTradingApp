@@ -1,14 +1,44 @@
 import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, Image, FlatList } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect, useState, useRef, useMemo } from 'react'
 import { db, auth } from '../../config/Firebase'
 import { collection, doc, getDocs, query, onSnapshot } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
+import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 const LinkedAccountsMainScreen = ({ navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [data, setData] = useState([])
+    const bottomSheetModalRef = useRef(null)
+    const snapPoints = useMemo(() => ['30%'], [])
+    const openModal = () => {
+        bottomSheetModalRef.current.present();
+    }
+
+    function BottomSheet() {
+        return (
+            <BottomSheetModal
+                ref={bottomSheetModalRef}
+                index={0}
+                snapPoints={snapPoints}
+                style={styles.bottomSheet}
+                backgroundComponent={() =>
+                    <View style={styles.bottomModalBackground} />
+                }
+                handleComponent={() =>
+                    <View style={styles.closeLine}></View>
+                }
+                enablePanDownToClose
+            >
+                <View style={styles.bottomSheetContainer}>
+                    <View style={styles.info}>
+
+                    </View>
+                </View>
+            </BottomSheetModal>
+        )
+    }
 
     useLayoutEffect(() => {
         const q = query(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'))
@@ -19,7 +49,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                 apiKey: item.data().apiKey,
             })))
         })
-            
+
         return snapShotUnsubscribe
     }, [])
 
@@ -52,46 +82,50 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
         )
     }
     return (
-        <View style={styles.container}>
-            <AccountOptions />
-            <View
-                style={styles.backButton}>
-                <IconAntDesign.Button
-                    name="left"
-                    size={43}
-                    backgroundColor={'black'}
-                    color="grey"
-                    onPress={() => navigation.navigate('MainStack', { screen: 'SettingsScreen' })}
-                    borderRadius={50}
-                    iconStyle={{ marginRight: 5 }}
-                    underlayColor="grey" />
-            </View>
-            <View style={styles.headerWrapper}>
-                <Text style={styles.titleText}>Add new account</Text>
-                <IconAntDesign.Button
-                    name="plus"
-                    size={45}
-                    backgroundColor={'black'}
-                    color="white"
-                    style={{ marginRight: -10, }}
-                    onPress={() => setModalVisible(true)}
-                />
-            </View>
-            <View style={styles.separatorLine}></View>
-            <SafeAreaView>
-                <FlatList 
-                    keyExtractor={(item) => item.id}
-                    data={data}
-                    renderItem={({item}) => (
-                        <LinkedAccountInfoCard
-                        name={item.name}
-                        exchange={item.exchange}
-                        apiKey={item.apiKey}
-                        />
-                    )}
+        <BottomSheetModalProvider>
+            <View style={styles.container}>
+                <AccountOptions />
+                <BottomSheet />
+                <View
+                    style={styles.backButton}>
+                    <IconAntDesign.Button
+                        name="left"
+                        size={43}
+                        backgroundColor={'black'}
+                        color="grey"
+                        onPress={() => navigation.navigate('MainStack', { screen: 'SettingsScreen' })}
+                        borderRadius={50}
+                        iconStyle={{ marginRight: 5 }}
+                        underlayColor="grey" />
+                </View>
+                <View style={styles.headerWrapper}>
+                    <Text style={styles.titleText}>Add new account</Text>
+                    <IconAntDesign.Button
+                        name="plus"
+                        size={45}
+                        backgroundColor={'black'}
+                        color="white"
+                        style={{ marginRight: -10, }}
+                        onPress={() => setModalVisible(true)}
                     />
-            </SafeAreaView>
-        </View>
+                </View>
+                <View style={styles.separatorLine}></View>
+                <SafeAreaView>
+                    <FlatList
+                        keyExtractor={(item) => item.name}
+                        data={data}
+                        renderItem={({ item }) => (
+                            <LinkedAccountInfoCard
+                                name={item.name}
+                                exchange={item.exchange}
+                                apiKey={item.apiKey}
+                                onPress={openModal}
+                            />
+                        )}
+                    />
+                </SafeAreaView>
+            </View>
+        </BottomSheetModalProvider>
     )
 }
 
@@ -186,5 +220,33 @@ const styles = StyleSheet.create({
     modalButtonImage: {
         width: '100%',
         height: 70
+    },
+    bottomSheet: {
+        backgroundColor: 'black',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 9,
+        },
+        shadowOpacity: 0.50,
+        shadowRadius: 12.35,
+
+        elevation: 19,
+    },
+    bottomSheetContainer: {
+    },
+    closeLine: {
+        alignSelf: 'center',
+        width: 40,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'white',
+        marginTop: 9,
+    },
+    bottomModalBackground: {
+        ...StyleSheet.absoluteFillObject,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        backgroundColor: '#1e1e1e',
     }
 })

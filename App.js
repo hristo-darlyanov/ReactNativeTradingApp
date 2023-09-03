@@ -8,6 +8,7 @@ import { createContext, useState, useContext, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './config/Firebase';
 import { CreateAgentTabContext } from './components/PublicContexts';
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import EntryScreen from './screens/entryStackScreens/EntryScreen';
 import LoginScreen from './screens/entryStackScreens/LoginScreen';
@@ -144,9 +145,9 @@ function MainStack() {
 
 function AllMainScreenStack() {
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="MainStack" component={MainStack}/>
-      <Stack.Screen name="SettingsStack" component={SettingsStack}/>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainStack" component={MainStack} />
+      <Stack.Screen name="SettingsStack" component={SettingsStack} />
     </Stack.Navigator>
   )
 }
@@ -193,11 +194,13 @@ function RootNavigation() {
 
 export default function App() {
   return (
-    <AuthenticatedUserProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthenticatedUserProvider>
         <CreateAgentTabProvider>
           <RootNavigation />
         </CreateAgentTabProvider>
-    </AuthenticatedUserProvider>
+      </AuthenticatedUserProvider>
+    </GestureHandlerRootView>
   );
 }
 
