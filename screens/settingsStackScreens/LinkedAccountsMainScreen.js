@@ -16,7 +16,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     const snapPoints = useMemo(() => ['30%'], [])
     const openModal = ({ item }) => {
         if (item.exchange == 'binance') {
-             setImage(require('../../assets/exchange-logos/Binance_Icon.png'))
+            setImage(require('../../assets/exchange-logos/Binance_Icon.png'))
         }
         setCurrentlySelectedAccount(item)
     }
@@ -46,9 +46,14 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                     <View style={styles.info}>
                         <Image style={styles.bottomSheetImage} source={image} />
                         <View>
-                            <Text style={{color: 'white'}}>{currentlySelectedAccount?.name}</Text>
+                            <Text style={styles.bottomSheetText}>name - {currentlySelectedAccount?.name}</Text>
+                            <Text style={styles.bottomSheetText}>Exchange - {currentlySelectedAccount?.exchange}</Text>
+                            <Text style={styles.bottomSheetText}>Api key - {currentlySelectedAccount?.apiKey.substring(0, 4)}XXXX</Text>
                         </View>
                     </View>
+                    <TouchableOpacity style={styles.bottomSheetButton}>
+                        <Text style={styles.bottomSheetButtonText}>Remove account</Text>
+                    </TouchableOpacity>
                 </View>
             </BottomSheetModal>
         )
@@ -66,6 +71,39 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
 
         return snapShotUnsubscribe
     }, [])
+
+    function FlatListHeader() {
+        return (
+            <>
+                <AccountOptions />
+                <BottomSheet />
+                <View
+                    style={styles.backButton}>
+                    <IconAntDesign.Button
+                        name="left"
+                        size={43}
+                        backgroundColor={'black'}
+                        color="grey"
+                        onPress={() => navigation.navigate('MainStack', { screen: 'SettingsScreen' })}
+                        borderRadius={50}
+                        iconStyle={{ marginRight: 5 }}
+                        underlayColor="grey" />
+                </View>
+                <View style={styles.headerWrapper}>
+                    <Text style={styles.titleText}>Add new account</Text>
+                    <IconAntDesign.Button
+                        name="plus"
+                        size={45}
+                        backgroundColor={'black'}
+                        color="white"
+                        style={{ marginRight: -10, }}
+                        onPress={() => setModalVisible(true)}
+                    />
+                </View>
+                <View style={styles.separatorLine}></View>
+            </>
+        )
+    }
 
     function AccountOptions() {
         return (
@@ -98,32 +136,6 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     return (
         <BottomSheetModalProvider>
             <View style={styles.container}>
-                <AccountOptions />
-                <BottomSheet />
-                <View
-                    style={styles.backButton}>
-                    <IconAntDesign.Button
-                        name="left"
-                        size={43}
-                        backgroundColor={'black'}
-                        color="grey"
-                        onPress={() => navigation.navigate('MainStack', { screen: 'SettingsScreen' })}
-                        borderRadius={50}
-                        iconStyle={{ marginRight: 5 }}
-                        underlayColor="grey" />
-                </View>
-                <View style={styles.headerWrapper}>
-                    <Text style={styles.titleText}>Add new account</Text>
-                    <IconAntDesign.Button
-                        name="plus"
-                        size={45}
-                        backgroundColor={'black'}
-                        color="white"
-                        style={{ marginRight: -10, }}
-                        onPress={() => setModalVisible(true)}
-                    />
-                </View>
-                <View style={styles.separatorLine}></View>
                 <SafeAreaView>
                     <FlatList
                         keyExtractor={(item) => item.name}
@@ -133,9 +145,10 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                                 name={item.name}
                                 exchange={item.exchange}
                                 apiKey={item.apiKey}
-                                onPress={() => openModal({item})}
+                                onPress={() => openModal({ item })}
                             />
                         )}
+                        ListHeaderComponent={<FlatListHeader/>}
                     />
                 </SafeAreaView>
             </View>
@@ -171,7 +184,7 @@ const styles = StyleSheet.create({
         width: '90%',
         backgroundColor: 'grey',
         height: 1,
-        marginBottom: '0%',
+        marginBottom: '3%',
         marginTop: '2%',
         alignSelf: 'center'
     },
@@ -248,6 +261,7 @@ const styles = StyleSheet.create({
         elevation: 19,
     },
     bottomSheetContainer: {
+        height: '100%'
     },
     closeLine: {
         alignSelf: 'center',
@@ -264,7 +278,34 @@ const styles = StyleSheet.create({
         backgroundColor: '#1e1e1e',
     },
     bottomSheetImage: {
-        height: 40,
-        width: 40
+        height: 100,
+        width: 100,
+        marginRight: 15
+    },
+    bottomSheetText: {
+        color: 'white',
+        fontSize: 22
+    },
+    info: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 10,
+        marginTop: 30,
+    },
+    bottomSheetButton: {
+        width: '90%',
+        borderRadius: 15,
+        backgroundColor: 'red',
+        padding: 5,
+        alignItems: 'center',
+        alignSelf: 'center',
+        position: 'absolute',
+        bottom: 0,
+        marginBottom: 30
+    },
+    bottomSheetButtonText: {
+        color: 'white',
+        fontSize: 30,
+        fontWeight: 'bold'
     }
 })
