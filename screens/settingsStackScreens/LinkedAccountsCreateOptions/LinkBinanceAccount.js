@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Keyboard, Modal } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconOcticons } from 'react-native-vector-icons/Octicons';
-import React, { useState } from 'react'
+import React, { useState, useLayoutEffect } from 'react'
 import { AccountInformationFutures } from '../../../BinanceAccountController';
 import { db, auth } from '../../../config/Firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, query } from 'firebase/firestore';
 
 const LinkBinanceAccount = ({ navigation }) => {
     const keyboardShowListener = Keyboard.addListener(
@@ -16,9 +16,25 @@ const LinkBinanceAccount = ({ navigation }) => {
         }
     );
 
+    useLayoutEffect(() => {
+        const q = query(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'))
+        const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
+            setData(updatedQuery.docs.map(item => ({
+                name: item.data().name,
+                exchange: item.data().exchange,
+                apiKey: item.data().apiKey,
+                apiSecret: item.data().apiSecret,
+                id: item.id
+            })))
+        })
+
+        return snapShotUnsubscribe
+    }, [])
+
     const [isButtonDisabled, setIsButtonDisabled] = useState(false)
     const [buttonProps, setButtonProps] = useState({ backgroundColor: 'white', borderColor: 'white', })
     const [buttonMessage, setButtonMessage] = useState('Link account')
+    const [data, setData] = useState([])
     const [name, setName] = useState('')
     const [apiKey, setApiKey] = useState('')
     const [apiSecret, setApiSecret] = useState('')
@@ -30,21 +46,36 @@ const LinkBinanceAccount = ({ navigation }) => {
     function ValidInput() {
         const passedTests = []
         if (name.replace(/\s/g, "") != "") {
-            passedTests.push(true)
+            if (!data.some(x => x.name === name)) {
+                passedTests.push(true)
+            } else {
+                setNameErrorMessage('This name is already associated with one of your accounts')
+                passedTests.push(false)
+            }
         } else {
             setNameErrorMessage('Name cannot be empty')
             passedTests.push(false)
         }
 
         if (apiKey.replace(/\s/g, "") != "") {
-            passedTests.push(true)
+            if (!data.some(x => x.apiKey === apiKey)) {
+                passedTests.push(true)
+            } else {
+                setApiKeyErrorMessage('This api key is already associated with one of your accounts')
+                passedTests.push(false)
+            }
         } else {
             setApiKeyErrorMessage('Api key cannot be empty')
             passedTests.push(false)
         }
 
         if (apiSecret.replace(/\s/g, "") != "") {
-            passedTests.push(true)
+            if (!data.some(x => x.apiSecret === apiSecret)) {
+                passedTests.push(true)
+            } else {
+                setApiSecretErrorMessage('This api secret is already associated with one of your accounts')
+                passedTests.push(false)
+            }
         } else {
             setApiSecretErrorMessage('Api secret cannot be empty')
             passedTests.push(false)
@@ -102,7 +133,7 @@ const LinkBinanceAccount = ({ navigation }) => {
                         <Text style={styles.modalText}>Account linked successfully</Text>
                         <TouchableOpacity style={styles.modalButton} onPress={() => {
                             setModalVisible(false)
-                            navigation.navigate("SettingsStack", {screen:'LinkedAccountsMainScreen'})
+                            navigation.navigate("SettingsStack", { screen: 'LinkedAccountsMainScreen' })
                         }}>
                             <Text style={styles.modalButtonText}>Go back</Text>
                         </TouchableOpacity>
