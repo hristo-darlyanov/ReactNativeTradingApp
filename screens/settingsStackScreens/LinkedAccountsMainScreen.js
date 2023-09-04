@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, ScrollView, Modal, TouchableOpacity, Image, Fla
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import React, { useLayoutEffect, useState, useRef, useMemo, useEffect } from 'react'
 import { db, auth } from '../../config/Firebase'
-import { collection, doc, getDocs, query, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDocs, query, onSnapshot, deleteDoc, where } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -12,8 +12,6 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     const [data, setData] = useState([])
     const [currentlySelectedAccount, setCurrentlySelectedAccount] = useState(null)
     const [image, setImage] = useState(null)
-    const [bottomSheetButtonText, setBottomSheetButtonText] = useState('Remove account')
-    const [bottomSheetButtonState, setbottomSheetButtonState] = useState(0)
     const bottomSheetModalRef = useRef(null)
     const snapPoints = useMemo(() => ['28%'], [])
     const openModal = ({ item }) => {
@@ -32,10 +30,13 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
         }
     }, [currentlySelectedAccount])
 
+    const handleRemoveAccount = async () => {
+        await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'linkedAccounts', currentlySelectedAccount.id))
+    }
+
     function BottomSheet() {
         return (
             <BottomSheetModal
-            onDismiss={() => bottomSheetModalRef.current.dismiss()}
                 ref={bottomSheetModalRef}
                 index={0}
                 snapPoints={snapPoints}
@@ -57,8 +58,8 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                             <Text style={styles.bottomSheetText}>Api key - {currentlySelectedAccount?.apiKey.substring(0, 4)}XXXX</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.bottomSheetButton}>
-                        <Text style={styles.bottomSheetButtonText}>{bottomSheetButtonText}</Text>
+                    <TouchableOpacity style={styles.bottomSheetButton} onPress={handleRemoveAccount}>
+                        <Text style={styles.bottomSheetButtonText}>Remove account</Text>
                     </TouchableOpacity>
                 </View>
             </BottomSheetModal>
@@ -72,6 +73,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                 name: item.data().name,
                 exchange: item.data().exchange,
                 apiKey: item.data().apiKey,
+                id: item.id
             })))
         })
 
@@ -154,7 +156,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                                 onPress={() => openModal({ item })}
                             />
                         )}
-                        ListHeaderComponent={<FlatListHeader/>}
+                        ListHeaderComponent={<FlatListHeader />}
                     />
                 </SafeAreaView>
             </View>
