@@ -12,9 +12,14 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     const [data, setData] = useState([])
     const [currentlySelectedAccount, setCurrentlySelectedAccount] = useState(null)
     const [image, setImage] = useState(null)
+    const [bottomSheetButtonText, setBottomSheetButtonText] = useState('Remove account')
+    const [bottomSheetButtonState, setbottomSheetButtonState] = useState(0)
     const bottomSheetModalRef = useRef(null)
-    const snapPoints = useMemo(() => ['30%'], [])
+    const snapPoints = useMemo(() => ['28%'], [])
     const openModal = ({ item }) => {
+        if (item == currentlySelectedAccount) {
+            bottomSheetModalRef.current.present()
+        }
         if (item.exchange == 'binance') {
             setImage(require('../../assets/exchange-logos/Binance_Icon.png'))
         }
@@ -30,6 +35,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     function BottomSheet() {
         return (
             <BottomSheetModal
+            onDismiss={() => bottomSheetModalRef.current.dismiss()}
                 ref={bottomSheetModalRef}
                 index={0}
                 snapPoints={snapPoints}
@@ -40,7 +46,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                 handleComponent={() =>
                     <View style={styles.closeLine}></View>
                 }
-                enablePanDownToClose
+                enablePanDownToClose={true}
             >
                 <View style={styles.bottomSheetContainer}>
                     <View style={styles.info}>
@@ -52,7 +58,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
                         </View>
                     </View>
                     <TouchableOpacity style={styles.bottomSheetButton}>
-                        <Text style={styles.bottomSheetButtonText}>Remove account</Text>
+                        <Text style={styles.bottomSheetButtonText}>{bottomSheetButtonText}</Text>
                     </TouchableOpacity>
                 </View>
             </BottomSheetModal>
@@ -301,7 +307,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         position: 'absolute',
         bottom: 0,
-        marginBottom: 30
+        marginBottom: 25,
+        paddingVertical: 5
     },
     bottomSheetButtonText: {
         color: 'white',
