@@ -6,12 +6,13 @@ import { query, onSnapshot, collection } from 'firebase/firestore';
 import React, { useRef, useContext, useState, useLayoutEffect } from 'react'
 import { FlatList } from 'react-native-gesture-handler';
 import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
+import { AccountInformationFutures } from '../../BinanceAccountController';
 
 const binanceIcon = require('../../assets/exchange-logos/Binance_Icon.png')
 
 const CreateAgentScreen = () => {
     const [modalVisible, setModalVisible] = useState(false)
-    const [selectedAccount, setSelectedAccount] = useState('none')
+    const [selectedAccount, setSelectedAccount] = useState(null)
     const [data, setData] = useState([])
     const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -21,7 +22,7 @@ const CreateAgentScreen = () => {
         if (item.exchange == 'binance') {
             setImage(binanceIcon)
         }
-        setSelectedAccount(item.name)
+        setSelectedAccount(item)
         setModalVisible(false)
     }
 
@@ -32,12 +33,20 @@ const CreateAgentScreen = () => {
                 name: item.data().name,
                 exchange: item.data().exchange,
                 apiKey: item.data().apiKey,
-                id: item.id
+                apiSecret: item.data().apiSecret
             })))
         })
 
         return snapShotUnsubscribe
     }, [])
+
+    useLayoutEffect(() => {
+        const getInfo = async () => {
+            console.log(await AccountInformationFutures(selectedAccount.apiKey, selectedAccount.apiSecret))
+        }
+
+        return getInfo
+    })
 
     const fadeIn = () => {
         // Will change fadeAnim value to 1 in 5 seconds
@@ -107,8 +116,11 @@ const CreateAgentScreen = () => {
 
     function AfterChosenAccountOptions() {
         return (
-            <View>
-                <Text style={styles.text}>hello</Text>
+            <View style={[styles.contentWrapper, {marginTop: 20}]}>
+                <Text style={styles.text}>Max amount of USDT usage:</Text>
+                <TouchableOpacity>
+                    <Text></Text>
+                </TouchableOpacity>
             </View>
         )
     }
@@ -136,10 +148,10 @@ const CreateAgentScreen = () => {
                 <Text style={styles.text}>Choose account:</Text>
                 <TouchableOpacity style={styles.chooseAccountButton} onPress={() => setModalVisible(true)}>
                     <Image style={styles.image} source={image}/>
-                    <Text style={styles.chooseAccountText}>{selectedAccount}</Text>
+                    <Text style={styles.chooseAccountText}>{selectedAccount ? selectedAccount.name : 'none'}</Text>
                 </TouchableOpacity>
             </View>
-            { selectedAccount != 'none' ? <AfterChosenAccountOptions/> : <View></View>}
+            { selectedAccount ? <AfterChosenAccountOptions/> : <View></View>}
         </View>
     )
 }
@@ -181,7 +193,7 @@ const styles = StyleSheet.create({
     },
     text: {
         color: 'white',
-        fontSize: 30
+        fontSize: 28
     },
     chooseAccountText: {
         color: 'grey',
