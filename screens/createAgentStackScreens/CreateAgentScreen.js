@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Animated, Keyboard, TouchableOpacity, Modal, Image } from 'react-native'
+import { StyleSheet, Text, View, Animated, Keyboard, TouchableOpacity, Modal, Image, TextInput } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { CreateAgentTabContext } from '../../components/PublicContexts';
 import { db, auth } from '../../config/Firebase'
@@ -14,16 +14,29 @@ const CreateAgentScreen = () => {
     const [modalVisible, setModalVisible] = useState(false)
     const [selectedAccount, setSelectedAccount] = useState(null)
     const [data, setData] = useState([])
+    const [availableUSDT, setAvailableUSDT] = useState(0)
+    const [amountOfUSDTPerTrade, setAmountOfUSDTPerTrade] = useState('')
+    const [USDTToUse, setUSDTToUse] = useState('')
     const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const [image, setImage] = useState(null)
 
-    const handleAccountSelection = ({item}) => {
+    function ValidateInput() {
+
+    }
+
+    const handleAccountSelection = async ({ item }) => {
         if (item.exchange == 'binance') {
             setImage(binanceIcon)
         }
         setSelectedAccount(item)
         setModalVisible(false)
+        await AccountInformationFutures(item.apiKey, item.apiSecret)
+            .then((data) => {
+                const usdtInfo = data.assets.find(x => x.asset == 'USDT')
+                setAvailableUSDT(usdtInfo.availableBalance)
+                setUSDTToUse(usdtInfo.availableBalance)
+            })
     }
 
     useLayoutEffect(() => {
@@ -39,14 +52,6 @@ const CreateAgentScreen = () => {
 
         return snapShotUnsubscribe
     }, [])
-
-    useLayoutEffect(() => {
-        const getInfo = async () => {
-            console.log(await AccountInformationFutures(selectedAccount.apiKey, selectedAccount.apiSecret))
-        }
-
-        return getInfo
-    })
 
     const fadeIn = () => {
         // Will change fadeAnim value to 1 in 5 seconds
@@ -114,17 +119,6 @@ const CreateAgentScreen = () => {
         )
     }
 
-    function AfterChosenAccountOptions() {
-        return (
-            <View style={[styles.contentWrapper, {marginTop: 20}]}>
-                <Text style={styles.text}>Max amount of USDT usage:</Text>
-                <TouchableOpacity>
-                    <Text></Text>
-                </TouchableOpacity>
-            </View>
-        )
-    }
-
     return (
         <View style={styles.container}>
             <AccountOptions />
@@ -147,11 +141,38 @@ const CreateAgentScreen = () => {
             <View style={styles.contentWrapper}>
                 <Text style={styles.text}>Choose account:</Text>
                 <TouchableOpacity style={styles.chooseAccountButton} onPress={() => setModalVisible(true)}>
-                    <Image style={styles.image} source={image}/>
+                    <Image style={styles.image} source={image} />
                     <Text style={styles.chooseAccountText}>{selectedAccount ? selectedAccount.name : 'none'}</Text>
                 </TouchableOpacity>
             </View>
-            { selectedAccount ? <AfterChosenAccountOptions/> : <View></View>}
+            <View style={[styles.contentWrapper, { marginTop: 20 }]}>
+                <Text style={styles.text}>Max amount of USDT usage:</Text>
+                <TextInput
+                    inputMode='decimal'
+                    defaultValue={`${USDTToUse}`}
+                    style={styles.input}
+                    placeholderTextColor='grey'
+                    placeholder={`Max amount: ${availableUSDT}`}
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    value={`${USDTToUse}`}
+                    onChangeText={(text) => setUSDTToUse(text)} />
+            </View>
+            <View style={[styles.contentWrapper, { marginTop: 20 }]}>
+                <Text style={styles.text}>USDT amount to use per trade in %:</Text>
+                <TextInput
+                    inputMode='decimal'
+                    style={styles.input}
+                    placeholderTextColor='grey'
+                    placeholder={`Max percentage: 5%`}
+                    autoCapitalize='none'
+                    autoCorrect={false}
+                    value={`${amountOfUSDTPerTrade}`}
+                    onChangeText={(text) => setAmountOfUSDTPerTrade(text)} />
+            </View>
+            <TouchableOpacity style={styles.openModalButton}>
+                <Text style={styles.openModalButtonText}>Create agent</Text>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -192,11 +213,11 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     text: {
-        color: 'white',
+        color: 'grey',
         fontSize: 28
     },
     chooseAccountText: {
-        color: 'grey',
+        color: 'white',
         fontSize: 25,
         marginLeft: 10,
     },
@@ -248,5 +269,29 @@ const styles = StyleSheet.create({
         width: 30,
         height: 30,
         marginLeft: 10
+    },
+    input: {
+        padding: 5,
+        backgroundColor: '#1e1e1e',
+        borderRadius: 10,
+        marginTop: '3%',
+        paddingVertical: 13,
+        color: 'white',
+        fontSize: 25,
+        paddingHorizontal: 20
+    },
+    openModalButton: {
+        alignItems: 'center',
+        alignSelf: 'center',
+        width: '85%',
+        backgroundColor: 'white',
+        borderRadius: 10,
+        marginTop: '15%',
+        paddingVertical: 10
+    },
+    openModalButtonText: {
+        color: 'black',
+        fontSize: 30,
+        fontWeight: 'bold',
     }
 })
