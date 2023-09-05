@@ -11,11 +11,12 @@ import { AccountInformationFutures } from '../../BinanceAccountController';
 const binanceIcon = require('../../assets/exchange-logos/Binance_Icon.png')
 
 const CreateAgentScreen = () => {
-    const [modalVisible, setModalVisible] = useState(false)
+    const [accountOptionsModalVisible, setAccountOptionsModalVisible] = useState(false)
+    const [confirmCreatingAgentModalVisible, setConfirmCreatingAgentModalVisible] = useState(false)
     const [selectedAccount, setSelectedAccount] = useState(null)
     const [data, setData] = useState([])
     const [availableUSDT, setAvailableUSDT] = useState(0)
-    const [amountOfUSDTPerTrade, setAmountOfUSDTPerTrade] = useState('')
+    const [amountOfPercentagePerTrade, setAmountOfPercentagePerTrade] = useState('')
     const [USDTToUse, setUSDTToUse] = useState('')
     const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -30,7 +31,7 @@ const CreateAgentScreen = () => {
             setImage(binanceIcon)
         }
         setSelectedAccount(item)
-        setModalVisible(false)
+        setAccountOptionsModalVisible(false)
         await AccountInformationFutures(item.apiKey, item.apiSecret)
             .then((data) => {
                 const usdtInfo = data.assets.find(x => x.asset == 'USDT')
@@ -84,18 +85,18 @@ const CreateAgentScreen = () => {
         }
     );
 
-    function AccountOptions() {
+    function AccountOptionsModal() {
         return (
             <Modal
                 animationType="fade"
                 transparent={true}
-                visible={modalVisible}
+                visible={accountOptionsModalVisible}
                 onRequestClose={() => {
                     Alert.alert('Modal has been closed.');
-                    setModalVisible(!modalVisible);
+                    setAccountOptionsModalVisible(!accountOptionsModalVisible);
                 }}>
                 <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
+                    <View style={[styles.modalView, { height: '60%' }]}>
                         <View style={styles.modalButtonWrapper}>
                             <FlatList
                                 keyExtractor={(item) => item.name}
@@ -110,7 +111,46 @@ const CreateAgentScreen = () => {
                                 )}
                             />
                         </View>
-                        <TouchableOpacity style={styles.modalBackButton} onPress={() => setModalVisible(false)}>
+                        <TouchableOpacity style={styles.modalBackButton} onPress={() => setAccountOptionsModalVisible(false)}>
+                            <Text style={styles.modalBackButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
+    function ConfirmCreatingAgentModal() {
+        return (
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={confirmCreatingAgentModalVisible}
+                onRequestClose={() => {
+                    Alert.alert('Modal has been closed.');
+                    setConfirmCreatingAgentModalVisible(!confirmCreatingAgentModalVisible);
+                }}>
+                <View style={styles.centeredView}>
+                    <View style={[styles.modalView, { height: '45%' }]}>
+                        <View style={styles.modalConfirmInfoWrapper}>
+                            <Text style={styles.modalDescriotion}>Are you sure you want to create agent with the following parameters:</Text>
+                            <View style={styles.infoWrapper}>
+                                <Text style={styles.infoMessage}>Associated account - </Text>
+                                <Text style={styles.infoValue}>{selectedAccount?.name}</Text>
+                            </View>
+                            <View style={styles.infoWrapper}>
+                                <Text style={styles.infoMessage}>USDT to use - </Text>
+                                <Text style={styles.infoValue}>${parseFloat(USDTToUse).toFixed(2)}</Text>
+                            </View>
+                            <View style={styles.infoWrapper}>
+                                <Text style={styles.infoMessage}>Percentage to use per trade - </Text>
+                                <Text style={styles.infoValue}>{amountOfPercentagePerTrade}%</Text>
+                            </View>
+                        </View>
+                        <TouchableOpacity style={styles.modalConfirmButton}>
+                            <Text style={styles.modalConfirmButtonText}>Create</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.modalBackButton} onPress={() => setConfirmCreatingAgentModalVisible(false)}>
                             <Text style={styles.modalBackButtonText}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
@@ -121,7 +161,8 @@ const CreateAgentScreen = () => {
 
     return (
         <View style={styles.container}>
-            <AccountOptions />
+            <AccountOptionsModal />
+            <ConfirmCreatingAgentModal />
             <Animated.View
                 style={[styles.backButton, { opacity: fadeAnim }]}>
                 <IconAntDesign.Button
@@ -140,7 +181,7 @@ const CreateAgentScreen = () => {
             <View style={styles.separatorLine}></View>
             <View style={styles.contentWrapper}>
                 <Text style={styles.text}>Choose account:</Text>
-                <TouchableOpacity style={styles.chooseAccountButton} onPress={() => setModalVisible(true)}>
+                <TouchableOpacity style={styles.chooseAccountButton} onPress={() => setAccountOptionsModalVisible(true)}>
                     <Image style={styles.image} source={image} />
                     <Text style={styles.chooseAccountText}>{selectedAccount ? selectedAccount.name : 'none'}</Text>
                 </TouchableOpacity>
@@ -167,10 +208,10 @@ const CreateAgentScreen = () => {
                     placeholder={`Max percentage: 5%`}
                     autoCapitalize='none'
                     autoCorrect={false}
-                    value={`${amountOfUSDTPerTrade}`}
-                    onChangeText={(text) => setAmountOfUSDTPerTrade(text)} />
+                    value={`${amountOfPercentagePerTrade}`}
+                    onChangeText={(text) => setAmountOfPercentagePerTrade(text)} />
             </View>
-            <TouchableOpacity style={styles.openModalButton}>
+            <TouchableOpacity style={styles.openModalButton} onPress={() => setConfirmCreatingAgentModalVisible(true)}>
                 <Text style={styles.openModalButtonText}>Create agent</Text>
             </TouchableOpacity>
         </View>
@@ -242,7 +283,6 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         borderWidth: 1,
         width: '90%',
-        height: '60%',
         alignItems: 'center',
     },
     modalBackButton: {
@@ -293,5 +333,43 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 30,
         fontWeight: 'bold',
+    },
+    modalConfirmInfoWrapper: {
+        width: '90%',
+        alignSelf: 'center'
+    },
+    modalDescriotion: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: 'bold' ,
+        marginTop: '5%',
+        marginBottom: '5%'
+    },
+    infoWrapper: {
+        flexDirection: 'row',
+        marginTop: 5,
+        margin: 5,
+        alignItems: 'center'
+    },
+    infoMessage: {
+        color: 'grey',
+        fontSize: 22
+    },
+    infoValue: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 22
+    },
+    modalConfirmButton: {
+        width: '90%',
+        backgroundColor: 'white',
+        paddingVertical: 7,
+        borderRadius: 10,
+        marginTop: '14%',
+        alignItems: 'center'
+    },
+    modalConfirmButtonText: {
+        fontSize: 30,
+        fontWeight: 'bold'
     }
 })
