@@ -83,7 +83,9 @@ const CreateAgentScreen = () => {
             associatedAccount: selectedAccount.name,
             usdtToUse: parseFloat(USDTToUse),
             percentagePerTrade: parseFloat(amountOfPercentagePerTrade),
-            position: 'hold'
+            position: 'hold',
+            apiKey: selectedAccount.apiKey,
+            apiSecret: selectedAccount.apiSecret
         })
             .then(() => {
                 setIsCreatingAgent(false)
