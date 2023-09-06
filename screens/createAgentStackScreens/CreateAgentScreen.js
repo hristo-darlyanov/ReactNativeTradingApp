@@ -2,15 +2,15 @@ import { StyleSheet, Text, View, Animated, Keyboard, TouchableOpacity, Modal, Im
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { CreateAgentTabContext } from '../../components/PublicContexts';
 import { db, auth } from '../../config/Firebase'
-import { query, onSnapshot, collection } from 'firebase/firestore';
+import { AccountInformationFutures } from '../../BinanceAccountController';
+import { query, onSnapshot, collection, addDoc } from 'firebase/firestore';
 import React, { useRef, useContext, useState, useLayoutEffect } from 'react'
 import { FlatList } from 'react-native-gesture-handler';
 import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
-import { AccountInformationFutures } from '../../BinanceAccountController';
 
 const binanceIcon = require('../../assets/exchange-logos/Binance_Icon.png')
 
-const CreateAgentScreen = () => {
+const CreateAgentScreen = ({navigation}) => {
     const [accountOptionsModalVisible, setAccountOptionsModalVisible] = useState(false)
     const [confirmCreatingAgentModalVisible, setConfirmCreatingAgentModalVisible] = useState(false)
     const [selectedAccount, setSelectedAccount] = useState(null)
@@ -35,7 +35,7 @@ const CreateAgentScreen = () => {
             return passedTests.every(Boolean)
         }
 
-        if(USDTToUse != '') {
+        if (USDTToUse != '') {
             try {
                 let num = parseFloat(USDTToUse)
                 if (num > availableUSDT) {
@@ -50,7 +50,7 @@ const CreateAgentScreen = () => {
             setUSDTUsageErrorMessage('Select amount')
         }
 
-        if(amountOfPercentagePerTrade != '') {
+        if (amountOfPercentagePerTrade != '') {
             try {
                 let num = parseFloat(amountOfPercentagePerTrade)
                 if (num > 5) {
@@ -75,6 +75,21 @@ const CreateAgentScreen = () => {
         if (ValidInput()) {
             setConfirmCreatingAgentModalVisible(true)
         }
+    }
+
+    async function CreateAgentForUser() {
+        setConfirmCreatingAgentModalVisible(false)
+        await addDoc(collection(db, 'users', auth.currentUser.uid, 'agents'), {
+            associatedAccount: selectedAccount.name,
+            usdtToUse: USDTToUse,
+            percentagePerTrade: amountOfPercentagePerTrade,
+            position: 'hold'
+        })
+            .then(() => {
+                setIsCreatingAgent(false)
+                console.log("Added agent successfully")
+            })
+            .catch(error => console.log(error))
     }
 
     const handleAccountSelection = async ({ item }) => {
@@ -199,7 +214,7 @@ const CreateAgentScreen = () => {
                                 <Text style={styles.infoValue}>{amountOfPercentagePerTrade}%</Text>
                             </View>
                         </View>
-                        <TouchableOpacity style={styles.modalConfirmButton}>
+                        <TouchableOpacity style={styles.modalConfirmButton} onPress={() => CreateAgentForUser()}>
                             <Text style={styles.modalConfirmButtonText}>Create</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.modalUnanchoredBackButton} onPress={() => setConfirmCreatingAgentModalVisible(false)}>
@@ -251,7 +266,7 @@ const CreateAgentScreen = () => {
                     autoCorrect={false}
                     value={`${USDTToUse}`}
                     onChangeText={(text) => setUSDTToUse(text)} />
-                    <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{USDTUsageErrorMessage}</Text>
+                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{USDTUsageErrorMessage}</Text>
             </View>
             <View style={[styles.contentWrapper, { marginTop: 20 }]}>
                 <Text style={styles.text}>USDT amount to use per trade in %:</Text>
@@ -264,7 +279,7 @@ const CreateAgentScreen = () => {
                     autoCorrect={false}
                     value={`${amountOfPercentagePerTrade}`}
                     onChangeText={(text) => setAmountOfPercentagePerTrade(text)} />
-                    <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{percentageErrorMessage}</Text>
+                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{percentageErrorMessage}</Text>
             </View>
             <TouchableOpacity style={styles.openModalButton} onPress={handleConfirmation}>
                 <Text style={styles.openModalButtonText}>Create agent</Text>
