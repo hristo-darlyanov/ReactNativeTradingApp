@@ -10,7 +10,7 @@ import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
 
 const binanceIcon = require('../../assets/exchange-logos/Binance_Icon.png')
 
-const CreateAgentScreen = ({navigation}) => {
+const CreateAgentScreen = () => {
     const [accountOptionsModalVisible, setAccountOptionsModalVisible] = useState(false)
     const [confirmCreatingAgentModalVisible, setConfirmCreatingAgentModalVisible] = useState(false)
     const [selectedAccount, setSelectedAccount] = useState(null)
@@ -81,8 +81,8 @@ const CreateAgentScreen = ({navigation}) => {
         setConfirmCreatingAgentModalVisible(false)
         await addDoc(collection(db, 'users', auth.currentUser.uid, 'agents'), {
             associatedAccount: selectedAccount.name,
-            usdtToUse: USDTToUse,
-            percentagePerTrade: amountOfPercentagePerTrade,
+            usdtToUse: parseFloat(USDTToUse),
+            percentagePerTrade: parseFloat(amountOfPercentagePerTrade),
             position: 'hold'
         })
             .then(() => {
