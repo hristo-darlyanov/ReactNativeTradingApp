@@ -310,7 +310,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         marginBottom: 25,
-        paddingVertical: 5
+        paddingVertical: 5,
+        marginTop: 20
     },
     bottomSheetButtonText: {
         color: 'white',

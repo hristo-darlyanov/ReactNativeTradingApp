@@ -18,12 +18,63 @@ const CreateAgentScreen = () => {
     const [availableUSDT, setAvailableUSDT] = useState(0)
     const [amountOfPercentagePerTrade, setAmountOfPercentagePerTrade] = useState('')
     const [USDTToUse, setUSDTToUse] = useState('')
+    const [accountErrorMessage, setAccountErrorMessage] = useState('')
+    const [USDTUsageErrorMessage, setUSDTUsageErrorMessage] = useState('')
+    const [percentageErrorMessage, setPercentageErrorMessage] = useState('')
     const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const [image, setImage] = useState(null)
 
-    function ValidateInput() {
+    function ValidInput() {
+        const passedTests = []
+        if (selectedAccount) {
+            passedTests.push(true)
+        } else {
+            passedTests.push(false)
+            setAccountErrorMessage('Choose an account')
+            return passedTests.every(Boolean)
+        }
 
+        if(USDTToUse != '') {
+            try {
+                let num = parseFloat(USDTToUse)
+                if (num > availableUSDT) {
+                    passedTests.push(false)
+                    setUSDTUsageErrorMessage('Insufficient balance')
+                }
+            } catch (error) {
+                passedTests.push(false)
+            }
+        } else {
+            passedTests.push(false)
+            setUSDTUsageErrorMessage('Select amount')
+        }
+
+        if(amountOfPercentagePerTrade != '') {
+            try {
+                let num = parseFloat(amountOfPercentagePerTrade)
+                if (num > 5) {
+                    passedTests.push(false)
+                    setPercentageErrorMessage("Percentage can't be bigger than 5%")
+                }
+            } catch (error) {
+                passedTests.push(false)
+            }
+        } else {
+            passedTests.push(false)
+            setPercentageErrorMessage('Select amount')
+        }
+
+        return passedTests.every(Boolean)
+    }
+
+    const handleConfirmation = () => {
+        setAccountErrorMessage('')
+        setUSDTUsageErrorMessage('')
+        setPercentageErrorMessage('')
+        if (ValidInput()) {
+            setConfirmCreatingAgentModalVisible(true)
+        }
     }
 
     const handleAccountSelection = async ({ item }) => {
@@ -37,6 +88,7 @@ const CreateAgentScreen = () => {
                 const usdtInfo = data.assets.find(x => x.asset == 'USDT')
                 setAvailableUSDT(usdtInfo.availableBalance)
                 setUSDTToUse(usdtInfo.availableBalance)
+                setAccountErrorMessage('')
             })
     }
 
@@ -131,7 +183,7 @@ const CreateAgentScreen = () => {
                     setConfirmCreatingAgentModalVisible(!confirmCreatingAgentModalVisible);
                 }}>
                 <View style={styles.centeredView}>
-                    <View style={[styles.modalView, { height: '45%' }]}>
+                    <View style={[styles.modalView, { height: '48%' }]}>
                         <View style={styles.modalConfirmInfoWrapper}>
                             <Text style={styles.modalDescriotion}>Are you sure you want to create agent with the following parameters:</Text>
                             <View style={styles.infoWrapper}>
@@ -150,7 +202,7 @@ const CreateAgentScreen = () => {
                         <TouchableOpacity style={styles.modalConfirmButton}>
                             <Text style={styles.modalConfirmButtonText}>Create</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.modalBackButton} onPress={() => setConfirmCreatingAgentModalVisible(false)}>
+                        <TouchableOpacity style={styles.modalUnanchoredBackButton} onPress={() => setConfirmCreatingAgentModalVisible(false)}>
                             <Text style={styles.modalBackButtonText}>Cancel</Text>
                         </TouchableOpacity>
                     </View>
@@ -185,6 +237,7 @@ const CreateAgentScreen = () => {
                     <Image style={styles.image} source={image} />
                     <Text style={styles.chooseAccountText}>{selectedAccount ? selectedAccount.name : 'none'}</Text>
                 </TouchableOpacity>
+                <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{accountErrorMessage}</Text>
             </View>
             <View style={[styles.contentWrapper, { marginTop: 20 }]}>
                 <Text style={styles.text}>Max amount of USDT usage:</Text>
@@ -198,6 +251,7 @@ const CreateAgentScreen = () => {
                     autoCorrect={false}
                     value={`${USDTToUse}`}
                     onChangeText={(text) => setUSDTToUse(text)} />
+                    <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{USDTUsageErrorMessage}</Text>
             </View>
             <View style={[styles.contentWrapper, { marginTop: 20 }]}>
                 <Text style={styles.text}>USDT amount to use per trade in %:</Text>
@@ -210,8 +264,9 @@ const CreateAgentScreen = () => {
                     autoCorrect={false}
                     value={`${amountOfPercentagePerTrade}`}
                     onChangeText={(text) => setAmountOfPercentagePerTrade(text)} />
+                    <Text style={{ color: 'red', marginTop: 5, alignSelf: 'flex-start' }}>{percentageErrorMessage}</Text>
             </View>
-            <TouchableOpacity style={styles.openModalButton} onPress={() => setConfirmCreatingAgentModalVisible(true)}>
+            <TouchableOpacity style={styles.openModalButton} onPress={handleConfirmation}>
                 <Text style={styles.openModalButtonText}>Create agent</Text>
             </TouchableOpacity>
         </View>
@@ -294,7 +349,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#1e1e1e',
         borderRadius: 7,
-        backgroundColor: '#1e1e1e'
+        backgroundColor: '#1e1e1e',
+        marginTop: '4%'
     },
     modalBackButtonText: {
         color: 'white',
@@ -341,7 +397,7 @@ const styles = StyleSheet.create({
     modalDescriotion: {
         color: 'white',
         fontSize: 20,
-        fontWeight: 'bold' ,
+        fontWeight: 'bold',
         marginTop: '5%',
         marginBottom: '5%'
     },
@@ -365,11 +421,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         paddingVertical: 7,
         borderRadius: 10,
-        marginTop: '14%',
+        marginTop: '5%',
         alignItems: 'center'
     },
     modalConfirmButtonText: {
         fontSize: 30,
         fontWeight: 'bold'
-    }
+    },
+    modalUnanchoredBackButton: {
+        width: '90%',
+        marginBottom: '4%',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#1e1e1e',
+        borderRadius: 7,
+        backgroundColor: '#1e1e1e',
+        marginTop: '4%'
+    },
 })
