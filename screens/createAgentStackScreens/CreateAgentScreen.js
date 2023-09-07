@@ -79,8 +79,9 @@ const CreateAgentScreen = () => {
 
     async function CreateAgentForUser() {
         setConfirmCreatingAgentModalVisible(false)
-        await addDoc(collection(db, 'users', auth.currentUser.uid, 'agents'), {
-            associatedAccount: selectedAccount.name,
+        await addDoc(collection(db, 'agents'), {
+            associatedAccountName: selectedAccount.name,
+            associatedAccountUserId: auth.currentUser.uid,
             usdtToUse: parseFloat(USDTToUse),
             percentagePerTrade: parseFloat(amountOfPercentagePerTrade),
             position: 'hold',
