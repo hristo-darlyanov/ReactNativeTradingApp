@@ -10,6 +10,7 @@ import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet
 const LinkedAccountsMainScreen = ({ navigation }) => {
     const [modalVisible, setModalVisible] = useState(false)
     const [data, setData] = useState([])
+    const [agentData, setAgentData] = useState([])
     const [currentlySelectedAccount, setCurrentlySelectedAccount] = useState(null)
     const [image, setImage] = useState(null)
     const bottomSheetModalRef = useRef(null)
@@ -32,12 +33,10 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
 
     const handleRemoveAccount = async () => {
         bottomSheetModalRef.current.close()
+        let sAgents = agentData.filter(x => x.agentName == currentlySelectedAccount.name)
+        sAgents = sAgents.find(x => x.associatedUser == auth.currentUser.uid)
         await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'linkedAccounts', currentlySelectedAccount.id))
-        await deleteDoc(
-            collection(db, 'agents')
-            .where('associatedAccountUserId', '==', auth.currentUser.uid)
-            .where('associatedAccountName', '==', currentlySelectedAccount.name))
-            .catch(error => {console.log(error.message)})
+        await deleteDoc(doc(db, 'agents', sAgents.id))
     }
 
     function BottomSheet() {
@@ -71,6 +70,19 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
             </BottomSheetModal>
         )
     }
+
+    useLayoutEffect(() => {
+        const q = query(collection(db, 'agents'))
+        const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
+            setAgentData(updatedQuery.docs.map(item => ({
+                associatedUser: item.data().associatedAccountUserId,
+                agentName: item.data().associatedAccountName,
+                id: item.id
+            })))
+        })
+
+        return snapShotUnsubscribe
+    }, [])
 
     useLayoutEffect(() => {
         const q = query(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'))
