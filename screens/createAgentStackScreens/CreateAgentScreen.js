@@ -80,6 +80,7 @@ const CreateAgentScreen = () => {
     async function CreateAgentForUser() {
         setConfirmCreatingAgentModalVisible(false)
         await addDoc(collection(db, 'agents'), {
+            dateOfCreation: Date.now(),
             associatedAccountName: selectedAccount.name,
             associatedAccountUserId: auth.currentUser.uid,
             usdtToUse: parseFloat(USDTToUse),

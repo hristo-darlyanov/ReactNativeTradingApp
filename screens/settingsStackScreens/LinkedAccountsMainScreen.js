@@ -31,7 +31,13 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     }, [currentlySelectedAccount])
 
     const handleRemoveAccount = async () => {
+        bottomSheetModalRef.current.close()
         await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'linkedAccounts', currentlySelectedAccount.id))
+        await deleteDoc(
+            collection(db, 'agents')
+            .where('associatedAccountUserId', '==', auth.currentUser.uid)
+            .where('associatedAccountName', '==', currentlySelectedAccount.name))
+            .catch(error => {console.log(error.message)})
     }
 
     function BottomSheet() {
