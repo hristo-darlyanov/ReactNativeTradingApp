@@ -1,26 +1,62 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, FlatList } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { CreateAgentTabContext } from '../../components/PublicContexts';
-import React, { useContext } from 'react'
+import AgentInfoCard from '../../components/AgentInfoCard';
+import React, { useContext, useLayoutEffect, useState } from 'react'
+import { db, auth } from '../../config/Firebase';
+import { query, where, onSnapshot, collection } from 'firebase/firestore';
 
 const AgentsDashboardScreen = () => {
-  const {isCreatingAgent, setIsCreatingAgent} = useContext(CreateAgentTabContext)
+  const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
+  const [agentData, setAgentData] = useState([])
+
+  useLayoutEffect(() => {
+    const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
+    const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
+      setAgentData(updatedQuery.docs.map(item => ({
+        associatedUser: item.data().associatedAccountUserId,
+        agentName: item.data().associatedAccountName,
+        id: item.id
+      })))
+    })
+
+    return snapShotUnsubscribe
+  }, [])
+
+  function FlatListHeader() {
+    return (
+      <>
+        <View style={styles.headerWrapper}>
+          <Text style={styles.titleText}>Dashboard</Text>
+          <IconAntDesign.Button
+            name="plus"
+            size={45}
+            backgroundColor={'black'}
+            color="white"
+            style={{ marginRight: -10, }}
+            onPress={() => setIsCreatingAgent(true)}
+          />
+        </View>
+        <View style={styles.separatorLine}></View>
+      </>
+    )
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.headerWrapper}>
-        <Text style={styles.titleText}>Dashboard</Text>
-        <IconAntDesign.Button
-          name="plus"
-          size={45}
-          backgroundColor={'black'}
-          color="white"
-          style={{marginRight: -10,}}
-          onPress={() => setIsCreatingAgent(true)}
-        />
-      </View>
-      <View style={styles.separatorLine}></View>
-      <ScrollView contentContainerStyle={styles.contentWrapper}>
-      </ScrollView>
+      <FlatList
+        keyExtractor={(item) => item.name}
+        data={data}
+        renderItem={({ item }) => (
+          <AgentInfoCard
+            name={item.name}
+            exchange={item.exchange}
+            apiKey={item.apiKey}
+            onPress={() => openModal({ item })}
+          />
+        )}
+        ListHeaderComponent={<FlatListHeader />}
+      />
     </View>
   )
 }
@@ -31,11 +67,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black'
-  },
-  contentWrapper: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center'
   },
   headerWrapper: {
     alignSelf: 'center',
