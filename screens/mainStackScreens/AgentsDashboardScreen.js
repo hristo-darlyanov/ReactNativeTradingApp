@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View, FlatList } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, FlatList, SafeAreaView, TouchableOpacity } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { CreateAgentTabContext } from '../../components/PublicContexts';
 import AgentInfoCard from '../../components/AgentInfoCard';
@@ -14,8 +14,13 @@ const AgentsDashboardScreen = () => {
     const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
     const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
       setAgentData(updatedQuery.docs.map(item => ({
+        apiKey: item.data().apiKey,
+        apiSecret: item.data().apiSecret,
         associatedUser: item.data().associatedAccountUserId,
         agentName: item.data().associatedAccountName,
+        dateOfCreation: item.data().dateOfCreation,
+        exchange: item.data().exchange,
+        position: item.data().position,
         id: item.id
       })))
     })
@@ -44,19 +49,23 @@ const AgentsDashboardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        keyExtractor={(item) => item.name}
-        data={data}
-        renderItem={({ item }) => (
-          <AgentInfoCard
-            name={item.name}
-            exchange={item.exchange}
-            apiKey={item.apiKey}
-            onPress={() => openModal({ item })}
-          />
-        )}
-        ListHeaderComponent={<FlatListHeader />}
-      />
+      <SafeAreaView>
+        <FlatList
+          keyExtractor={(item) => item.agentName}
+          data={agentData}
+          renderItem={({ item }) => (
+            <AgentInfoCard
+              name={item.agentName}
+              exchange={item.exchange}
+              position={item.position}
+              apiKey={item.apiKey}
+              apiSecret={item.apiSecret}
+              onPress={() => { }}
+            />
+          )}
+          ListHeaderComponent={<FlatListHeader />}
+        />
+      </SafeAreaView>
     </View>
   )
 }
