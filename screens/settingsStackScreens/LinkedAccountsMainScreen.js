@@ -72,7 +72,7 @@ const LinkedAccountsMainScreen = ({ navigation }) => {
     }
 
     useLayoutEffect(() => {
-        const q = query(collection(db, 'agents'))
+        const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
         const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
             setAgentData(updatedQuery.docs.map(item => ({
                 associatedUser: item.data().associatedAccountUserId,

@@ -3,7 +3,7 @@ import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { CreateAgentTabContext } from '../../components/PublicContexts';
 import { db, auth } from '../../config/Firebase'
 import { AccountInformationFutures } from '../../BinanceAccountController';
-import { query, onSnapshot, collection, addDoc } from 'firebase/firestore';
+import { query, onSnapshot, collection, addDoc, where } from 'firebase/firestore';
 import React, { useRef, useContext, useState, useLayoutEffect } from 'react'
 import { FlatList } from 'react-native-gesture-handler';
 import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
@@ -21,6 +21,7 @@ const CreateAgentScreen = () => {
     const [accountErrorMessage, setAccountErrorMessage] = useState('')
     const [USDTUsageErrorMessage, setUSDTUsageErrorMessage] = useState('')
     const [percentageErrorMessage, setPercentageErrorMessage] = useState('')
+    const [agentData, setAgentData] = useState([])
     const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const [image, setImage] = useState(null)
@@ -63,6 +64,14 @@ const CreateAgentScreen = () => {
         } else {
             passedTests.push(false)
             setPercentageErrorMessage('Select amount')
+        }
+
+        if (!agentData.some(agent => agent.agentName == selectedAccount.name)) {
+            console.log(selectedAccount.name)
+            passedTests.push(true)
+        } else {
+            setAccountErrorMessage('Agent associated with this account already exists')
+            passedTests.push(false)
         }
 
         return passedTests.every(Boolean)
@@ -110,6 +119,19 @@ const CreateAgentScreen = () => {
                 setAccountErrorMessage('')
             })
     }
+
+    useLayoutEffect(() => {
+        const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
+        const snapShotUnsubscribe = onSnapshot(q, updatedQuery => {
+            setAgentData(updatedQuery.docs.map(item => ({
+                associatedUser: item.data().associatedAccountUserId,
+                agentName: item.data().associatedAccountName,
+                id: item.id
+            })))
+        })
+
+        return snapShotUnsubscribe
+    }, [])
 
     useLayoutEffect(() => {
         const q = query(collection(db, 'users', auth.currentUser.uid, 'linkedAccounts'))

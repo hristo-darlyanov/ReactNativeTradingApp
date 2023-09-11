@@ -6,7 +6,7 @@ import { AccountInformationFutures } from '../../../BinanceAccountController';
 import { db, auth } from '../../../config/Firebase';
 import { addDoc, collection, onSnapshot, query } from 'firebase/firestore';
 
-const LinkBinanceAccount = ({ navigation }) => {
+const LinkBinanceAccountScreen = ({ navigation }) => {
     const keyboardShowListener = Keyboard.addListener(
         'keyboardDidShow',
         () => {
@@ -229,7 +229,7 @@ const LinkBinanceAccount = ({ navigation }) => {
     )
 }
 
-export default LinkBinanceAccount
+export default LinkBinanceAccountScreen
 
 const styles = StyleSheet.create({
     container: {
