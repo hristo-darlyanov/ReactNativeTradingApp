@@ -1,6 +1,8 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React, { useLayoutEffect, useState } from 'react'
 import { PositionInformationFutures } from '../BinanceAccountController'
+import { LinearGradient } from 'expo-linear-gradient';
+import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
 
@@ -9,14 +11,26 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
     const entryPriceColor = position == 'hold' ? 'grey' : 'white'
     const image = exchange == 'binance' ? binanceIcon : null
     const entryPrice = position == 'hold' ? 'NONE' : ''
+    const [profitColor, setProfitColor] = useState('#1e1e1e')
     const [positionData, setPositionData] = useState([])
+    const [profitPercentage, setProfitPercentage] = useState('0')
+    const [percentageIncreaseImage, setPercentageIncreaseImage] = useState('minus')
 
     useLayoutEffect(() => {
         async function GetData() {
             await PositionInformationFutures(apiKey, apiSecret)
                 .then((data) => {
                     const asset = data.find(x => x.symbol == 'BTCUSDT')
+                    const tempProfitColor = asset.unRealizedProfit > 0 ? 'green' : asset.unRealizedProfit < 0 ? 'red' : '#1e1e1e'
+                    let tempProfitPercentage = ((asset.markPrice - asset.entryPrice) / asset.entryPrice) * 100
+                    if (position == 'SELL') {
+                        tempProfitPercentage = -tempProfitPercentage
+                    }
+                    const tempPercentageIncreaseImage = tempProfitPercentage > 0 ? 'caretup' : tempProfitPercentage < 0 ? 'caretdown' : 'minus'
+                    setProfitPercentage(tempProfitPercentage)
                     setPositionData(asset)
+                    setProfitColor(tempProfitColor)
+                    setPercentageIncreaseImage(tempPercentageIncreaseImage)
                 })
         }
 
@@ -38,10 +52,29 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
                     <Text style={styles.infoText}>Entry price: <Text style={[
                         styles.infoText,
                         { color: entryPriceColor }
-                    ]}></Text>{entryPrice}</Text>
+                    ]}>{parseFloat(positionData.entryPrice).toFixed()}</Text>{entryPrice.toString()}</Text>
+                    <Text style={styles.infoText}>Market price: <Text style={[
+                        styles.infoText,
+                        { color: 'white' }
+                    ]}>{parseFloat(positionData.markPrice).toFixed().toString()}</Text></Text>
                 </View>
                 <View style={styles.secondHalfInfoWrapper}>
-                    <Text>2%</Text>
+                    <LinearGradient
+                        style={styles.linearGradient}
+                        colors={[profitColor, profitColor, 'transparent']}
+                        start={{ x: 1, y: 1 }}
+                        end={{ x: 0.1, y: 0.9 }}
+                        locations={[0, 0.4, 1]}>
+                        <View style={styles.percentageIncreaseInfoWrapper}>
+                            <Text style={styles.percentageIncreaseText}>{parseFloat(profitPercentage).toFixed(2).toString()}%</Text>
+                            <IconAntDesign 
+                            name={percentageIncreaseImage}
+                            size={20}
+                            style={{marginLeft: 5}}
+                            color="white"/>
+                        </View>
+                        <Text style={styles.unrealizedProfitText}>( {parseFloat(positionData.unRealizedProfit).toFixed(2).toString()} USDT )</Text>
+                    </LinearGradient>
                 </View>
             </TouchableOpacity>
         </View>
@@ -85,5 +118,29 @@ const styles = StyleSheet.create({
         color: 'grey',
         fontSize: 20,
         marginBottom: 5
+    },
+    linearGradient: {
+        flex: 1,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    secondHalfInfoWrapper: {
+        width: '100%',
+        flex: 1
+    },
+    percentageIncreaseText: {
+        color: 'white',
+        fontSize: 35,
+        fontWeight: '900'
+    },
+    percentageIncreaseInfoWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    unrealizedProfitText: {
+        marginTop: 10,
+        color: 'white',
+        fontSize: 20
     }
 })
