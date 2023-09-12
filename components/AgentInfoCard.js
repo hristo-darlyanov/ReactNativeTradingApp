@@ -1,13 +1,27 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
-import React from 'react'
+import React, { useLayoutEffect, useState } from 'react'
+import { PositionInformationFutures } from '../BinanceAccountController'
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
 
 const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret }) => {
-    let positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? 'green' : 'red'
-    let entryPriceColor = position == 'hold' ? 'grey' : 'white'
-    let image = exchange == 'binance' ? binanceIcon : null
-    let entryPrice = position == 'hold' ? 'NONE' : ''
+    const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? 'green' : 'red'
+    const entryPriceColor = position == 'hold' ? 'grey' : 'white'
+    const image = exchange == 'binance' ? binanceIcon : null
+    const entryPrice = position == 'hold' ? 'NONE' : ''
+    const [positionData, setPositionData] = useState([])
+
+    useLayoutEffect(() => {
+        async function GetData() {
+            await PositionInformationFutures(apiKey, apiSecret)
+                .then((data) => {
+                    const asset = data.find(x => x.symbol == 'BTCUSDT')
+                    setPositionData(asset)
+                })
+        }
+
+        GetData()
+    }, [])
 
     return (
         <View style={styles.container}>
