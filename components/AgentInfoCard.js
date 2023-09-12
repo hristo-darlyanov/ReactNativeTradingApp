@@ -67,11 +67,11 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
                         locations={[0, 0.4, 1]}>
                         <View style={styles.percentageIncreaseInfoWrapper}>
                             <Text style={styles.percentageIncreaseText}>{parseFloat(profitPercentage).toFixed(2).toString()}%</Text>
-                            <IconAntDesign 
-                            name={percentageIncreaseImage}
-                            size={20}
-                            style={{marginLeft: 5}}
-                            color="white"/>
+                            <IconAntDesign
+                                name={percentageIncreaseImage}
+                                size={20}
+                                style={{ marginLeft: 5 }}
+                                color="white" />
                         </View>
                         <Text style={styles.unrealizedProfitText}>( {parseFloat(positionData.unRealizedProfit).toFixed(2).toString()} USDT )</Text>
                     </LinearGradient>
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     firstHalfInfoWrapper: {
         marginLeft: '5%',
         marginTop: '3%',
-        marginBottom: '5%'
+        marginBottom: '3%'
     },
     logoAndNameWrapper: {
         flexDirection: 'row',
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     infoText: {
         color: 'grey',
         fontSize: 20,
-        marginBottom: 5
+        marginBottom: '6%'
     },
     linearGradient: {
         flex: 1,
