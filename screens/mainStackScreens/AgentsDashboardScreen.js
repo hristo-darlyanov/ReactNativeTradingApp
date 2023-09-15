@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View, FlatList, SafeAreaView, TouchableOpacity } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import { CreateAgentTabContext } from '../../components/PublicContexts';
+import { CreateAgentTabContext, RefreshingAgentsTabContext } from '../../components/PublicContexts';
 import AgentInfoCard from '../../components/AgentInfoCard';
 import React, { useContext, useLayoutEffect, useState } from 'react'
 import { db, auth } from '../../config/Firebase';
@@ -8,6 +8,7 @@ import { query, where, onSnapshot, collection } from 'firebase/firestore';
 
 const AgentsDashboardScreen = () => {
   const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
+  const [isRefreshing, setIsRefreshing] = useState(true)
   const [agentData, setAgentData] = useState([])
 
   useLayoutEffect(() => {
@@ -48,25 +49,29 @@ const AgentsDashboardScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView>
-        <FlatList
-          keyExtractor={(item) => item.agentName}
-          data={agentData}
-          renderItem={({ item }) => (
-            <AgentInfoCard
-              name={item.agentName}
-              exchange={item.exchange}
-              position={item.position}
-              apiKey={item.apiKey}
-              apiSecret={item.apiSecret}
-              onPress={() => { }}
-            />
-          )}
-          ListHeaderComponent={<FlatListHeader />}
-        />
-      </SafeAreaView>
-    </View>
+    <RefreshingAgentsTabContext.Provider value={{isRefreshing, setIsRefreshing}}>
+      <View style={styles.container}>
+        <SafeAreaView>
+          <FlatList
+            onRefresh={() => setIsRefreshing(true)}
+            refreshing={isRefreshing}
+            keyExtractor={(item) => item.agentName}
+            data={agentData}
+            renderItem={({ item }) => (
+              <AgentInfoCard
+                name={item.agentName}
+                exchange={item.exchange}
+                position={item.position}
+                apiKey={item.apiKey}
+                apiSecret={item.apiSecret}
+                onPress={() => { }}
+              />
+            )}
+            ListHeaderComponent={<FlatListHeader />}
+          />
+        </SafeAreaView>
+      </View>
+    </RefreshingAgentsTabContext.Provider>
   )
 }
 

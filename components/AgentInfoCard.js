@@ -1,8 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect, useState, useContext } from 'react'
 import { PositionInformationFutures } from '../BinanceAccountController'
 import { LinearGradient } from 'expo-linear-gradient';
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
+import { RefreshingAgentsTabContext } from './PublicContexts';
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
 
@@ -11,6 +12,7 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
     const entryPriceColor = position == 'hold' ? 'grey' : 'white'
     const image = exchange == 'binance' ? binanceIcon : null
     const entryPrice = position == 'hold' ? 'NONE' : ''
+    const { isRefreshing, setIsRefreshing } = useContext(RefreshingAgentsTabContext)
     const [profitColor, setProfitColor] = useState('#1e1e1e')
     const [positionData, setPositionData] = useState([])
     const [profitPercentage, setProfitPercentage] = useState('0')
@@ -18,24 +20,28 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
 
     useLayoutEffect(() => {
         async function GetData() {
-            await PositionInformationFutures(apiKey, apiSecret)
-                .then((data) => {
-                    const asset = data.find(x => x.symbol == 'BTCUSDT')
-                    const tempProfitColor = asset.unRealizedProfit > 0 ? 'green' : asset.unRealizedProfit < 0 ? 'red' : '#1e1e1e'
-                    let tempProfitPercentage = ((asset.markPrice - asset.entryPrice) / asset.entryPrice) * 100
-                    if (position == 'SELL') {
-                        tempProfitPercentage = -tempProfitPercentage
-                    }
-                    const tempPercentageIncreaseImage = tempProfitPercentage > 0 ? 'caretup' : tempProfitPercentage < 0 ? 'caretdown' : 'minus'
-                    setProfitPercentage(tempProfitPercentage)
-                    setPositionData(asset)
-                    setProfitColor(tempProfitColor)
-                    setPercentageIncreaseImage(tempPercentageIncreaseImage)
-                })
+            if (isRefreshing) {
+                await PositionInformationFutures(apiKey, apiSecret)
+                    .then((data) => {
+                        const asset = data.find(x => x.symbol == 'BTCUSDT')
+                        const tempProfitColor = asset.unRealizedProfit > 0 ? 'green' : asset.unRealizedProfit < 0 ? 'red' : '#1e1e1e'
+                        let tempProfitPercentage = ((asset.markPrice - asset.entryPrice) / asset.entryPrice) * 100
+                        if (position == 'SELL') {
+                            tempProfitPercentage = -tempProfitPercentage
+                        }
+                        const tempPercentageIncreaseImage = tempProfitPercentage > 0 ? 'caretup' : tempProfitPercentage < 0 ? 'caretdown' : 'minus'
+                        setProfitPercentage(tempProfitPercentage)
+                        setPositionData(asset)
+                        setProfitColor(tempProfitColor)
+                        setPercentageIncreaseImage(tempPercentageIncreaseImage)
+                        setIsRefreshing(false)
+                    })
+                    .catch(error => { console.log(error) })
+            }
         }
 
         GetData()
-    }, [])
+    }, [isRefreshing])
 
     return (
         <View style={styles.container}>
