@@ -3,7 +3,7 @@ import React, { useLayoutEffect, useState, useContext } from 'react'
 import { PositionInformationFutures } from '../BinanceAccountController'
 import { LinearGradient } from 'expo-linear-gradient';
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import { RefreshingAgentsTabContext } from './PublicContexts';
+import { LoadedAgentInfoContext, RefreshingAgentsTabContext } from './PublicContexts';
 import { useNavigation } from '@react-navigation/native';
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
@@ -14,7 +14,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
     const image = exchange == 'binance' ? binanceIcon : null
     const entryPrice = position == 'hold' ? 'NONE' : ''
     const { isRefreshing, setIsRefreshing } = useContext(RefreshingAgentsTabContext)
-    const [dataLoaded, setDataLoaded] = useState(false)
+    const {dataLoaded, setDataLoaded} = useContext(LoadedAgentInfoContext)
     const [profitColor, setProfitColor] = useState('#1e1e1e')
     const [positionData, setPositionData] = useState([])
     const [profitPercentage, setProfitPercentage] = useState('0')

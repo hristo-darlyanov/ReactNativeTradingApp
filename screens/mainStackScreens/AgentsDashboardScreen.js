@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View, FlatList, SafeAreaView, TouchableOpacity } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import { CreateAgentTabContext, RefreshingAgentsTabContext } from '../../components/PublicContexts';
+import { CreateAgentTabContext, LoadedAgentInfoContext, RefreshingAgentsTabContext } from '../../components/PublicContexts';
 import AgentInfoCard from '../../components/AgentInfoCard';
 import React, { useContext, useLayoutEffect, useState } from 'react'
 import { db, auth } from '../../config/Firebase';
@@ -8,6 +8,7 @@ import { query, where, onSnapshot, collection } from 'firebase/firestore';
 
 const AgentsDashboardScreen = ({ navigation }) => {
   const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
+  const [dataLoaded, setDataLoaded] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(true)
   const [agentData, setAgentData] = useState([])
 
@@ -50,26 +51,31 @@ const AgentsDashboardScreen = ({ navigation }) => {
 
   return (
     <RefreshingAgentsTabContext.Provider value={{ isRefreshing, setIsRefreshing }}>
-      <View style={styles.container}>
-        <SafeAreaView>
-          <FlatList
-            onRefresh={() => setIsRefreshing(true)}
-            refreshing={isRefreshing}
-            keyExtractor={(item) => item.agentName}
-            data={agentData}
-            renderItem={({ item }) => (
-              <AgentInfoCard
-                name={item.agentName}
-                exchange={item.exchange}
-                position={item.position}
-                apiKey={item.apiKey}
-                apiSecret={item.apiSecret}
-              />
-            )}
-            ListHeaderComponent={<FlatListHeader />}
-          />
-        </SafeAreaView>
-      </View>
+      <LoadedAgentInfoContext.Provider value={{ dataLoaded, setDataLoaded }} >
+        <View style={styles.container}>
+          <SafeAreaView>
+            <FlatList
+              onRefresh={() => {
+                setDataLoaded(false)
+                setIsRefreshing(true)
+              }}
+              refreshing={isRefreshing}
+              keyExtractor={(item) => item.agentName}
+              data={agentData}
+              renderItem={({ item }) => (
+                <AgentInfoCard
+                  name={item.agentName}
+                  exchange={item.exchange}
+                  position={item.position}
+                  apiKey={item.apiKey}
+                  apiSecret={item.apiSecret}
+                />
+              )}
+              ListHeaderComponent={<FlatListHeader />}
+            />
+          </SafeAreaView>
+        </View>
+      </LoadedAgentInfoContext.Provider>
     </RefreshingAgentsTabContext.Provider>
   )
 }
