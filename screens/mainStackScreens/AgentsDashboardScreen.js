@@ -6,7 +6,7 @@ import React, { useContext, useLayoutEffect, useState } from 'react'
 import { db, auth } from '../../config/Firebase';
 import { query, where, onSnapshot, collection } from 'firebase/firestore';
 
-const AgentsDashboardScreen = () => {
+const AgentsDashboardScreen = ({ navigation }) => {
   const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
   const [isRefreshing, setIsRefreshing] = useState(true)
   const [agentData, setAgentData] = useState([])
@@ -49,7 +49,7 @@ const AgentsDashboardScreen = () => {
   }
 
   return (
-    <RefreshingAgentsTabContext.Provider value={{isRefreshing, setIsRefreshing}}>
+    <RefreshingAgentsTabContext.Provider value={{ isRefreshing, setIsRefreshing }}>
       <View style={styles.container}>
         <SafeAreaView>
           <FlatList
@@ -64,7 +64,6 @@ const AgentsDashboardScreen = () => {
                 position={item.position}
                 apiKey={item.apiKey}
                 apiSecret={item.apiSecret}
-                onPress={() => { }}
               />
             )}
             ListHeaderComponent={<FlatListHeader />}
@@ -92,7 +91,8 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: 'white',
-    fontSize: 33
+    fontSize: 40,
+    fontWeight: 'bold'
   },
   separatorLine: {
     width: '90%',

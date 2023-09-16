@@ -21,6 +21,7 @@ import CreateAgentScreen from './screens/createAgentStackScreens/CreateAgentScre
 import LinkedAccountsMainScreen from './screens/settingsStackScreens/LinkedAccountsMainScreen';
 import LinkedAccountsCreateScreen from './screens/settingsStackScreens/LinkedAccountsCreateScreen';
 import LinkBinanceAccountScreen from './screens/settingsStackScreens/LinkedAccountsCreateOptions/LinkBinanceAccountScreen';
+import AgentInfoScreen from './screens/AgentInfoStack/AgentInfoScreen';
 
 // Creating screen navigators
 const Stack = createNativeStackNavigator();
@@ -143,11 +144,20 @@ function MainStack() {
   )
 }
 
+function AgentInfoStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="AgentInfoScreen" component={AgentInfoScreen} />
+    </Stack.Navigator>
+  )
+}
+
 function AllMainScreenStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainStack" component={MainStack} />
       <Stack.Screen name="SettingsStack" component={SettingsStack} />
+      <Stack.Screen name="AgentInfoStack" component={AgentInfoStack} />
     </Stack.Navigator>
   )
 }

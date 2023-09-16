@@ -4,10 +4,11 @@ import { PositionInformationFutures } from '../BinanceAccountController'
 import { LinearGradient } from 'expo-linear-gradient';
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { RefreshingAgentsTabContext } from './PublicContexts';
+import { useNavigation } from '@react-navigation/native';
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
 
-const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret }) => {
+const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? 'green' : 'red'
     const entryPriceColor = position == 'hold' ? 'grey' : 'white'
     const image = exchange == 'binance' ? binanceIcon : null
@@ -17,6 +18,8 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
     const [positionData, setPositionData] = useState([])
     const [profitPercentage, setProfitPercentage] = useState('0')
     const [percentageIncreaseImage, setPercentageIncreaseImage] = useState('minus')
+
+    const navigation = useNavigation()
 
     useLayoutEffect(() => {
         async function GetData() {
@@ -36,7 +39,10 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
                         setPercentageIncreaseImage(tempPercentageIncreaseImage)
                         setIsRefreshing(false)
                     })
-                    .catch(error => { console.log(error) })
+                    .catch(error => {
+                        setIsRefreshing(false)
+                        console.log(error)
+                    })
             }
         }
 
@@ -45,7 +51,9 @@ const AgentInfoCard = ({ name, exchange, position, onPress, apiKey, apiSecret })
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("AgentInfoStack", {
+                screen: "AgentInfoScreen"
+            })}>
                 <View style={styles.firstHalfInfoWrapper}>
                     <View style={styles.logoAndNameWrapper}>
                         <Image style={styles.image} source={image} />
