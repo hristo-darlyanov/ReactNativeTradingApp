@@ -14,6 +14,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
     const image = exchange == 'binance' ? binanceIcon : null
     const entryPrice = position == 'hold' ? 'NONE' : ''
     const { isRefreshing, setIsRefreshing } = useContext(RefreshingAgentsTabContext)
+    const [dataLoaded, setDataLoaded] = useState(false)
     const [profitColor, setProfitColor] = useState('#1e1e1e')
     const [positionData, setPositionData] = useState([])
     const [profitPercentage, setProfitPercentage] = useState('0')
@@ -38,6 +39,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                         setProfitColor(tempProfitColor)
                         setPercentageIncreaseImage(tempPercentageIncreaseImage)
                         setIsRefreshing(false)
+                        setDataLoaded(true)
                     })
                     .catch(error => {
                         setIsRefreshing(false)
@@ -51,9 +53,13 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("AgentInfoStack", {
-                screen: "AgentInfoScreen"
-            })}>
+            <TouchableOpacity style={styles.button} onPress={() => {
+                if (dataLoaded) {
+                    navigation.navigate("AgentInfoStack", {
+                        screen: "AgentInfoScreen"
+                    })
+                }
+            }}>
                 <View style={styles.firstHalfInfoWrapper}>
                     <View style={styles.logoAndNameWrapper}>
                         <Image style={styles.image} source={image} />
