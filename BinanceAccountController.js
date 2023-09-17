@@ -34,7 +34,7 @@ export async function PositionInformationFutures(apiKey = baseConfig.API_KEY, ap
     return data = await response.json()
 }
 
-export async function GetKlines(symbol = "BTCUSDT", interval= "1d", limit=50) {
+export async function GetKlines(symbol = "BTCUSDT", interval= "1d", limit=30) {
     const endPoint = '/fapi/v1/klines'
     const dataQuery = 'symbol=' + symbol + "&interval=" + interval + "&limit=" + limit
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery, {
