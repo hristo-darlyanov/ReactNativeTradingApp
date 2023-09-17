@@ -56,7 +56,12 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
             <TouchableOpacity style={styles.button} onPress={() => {
                 if (dataLoaded) {
                     navigation.navigate("AgentInfoStack", {
-                        screen: "AgentInfoScreen"
+                        screen: "AgentInfoScreen",
+                        params: {
+                            entryPrice: parseFloat(positionData.entryPrice),
+                            apiKey: apiKey,
+                            apiSecret: apiSecret
+                        }
                     })
                 }
             }}>

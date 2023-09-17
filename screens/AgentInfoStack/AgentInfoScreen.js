@@ -4,9 +4,10 @@ import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconMaterialIcons } from 'react-native-vector-icons/MaterialIcons';
 import { CandlestickChart } from 'react-native-wagmi-charts';
 import { LineChart } from 'react-native-wagmi-charts';
-import { GetKlines } from '../../BinanceAccountController';
+import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
+    const { entryPrice, apiKey, apiSecret } = route.params
     const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
     const [chart, setChart] = useState('line')
@@ -14,27 +15,42 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [lineChartIconColor, setLineChartIconColor] = useState('grey')
     const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'grey' })
     const [candleChartIconColor, setCandleChartIconColor] = useState('#2e2e2e')
+    const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: entryPrice }, })
+    const [dotProps, setDotProps] = useState({})
+    const [orderData, setOrderData] = useState({})
+
+    const formatUSD = value => {
+        'worklet';
+        if (value === '') {
+            const formattedValue = `${parseFloat(candleData.length > 0 ? candleData[candleData.length - 1].close : '').toFixed(2)}`
+            return `${formattedValue}`
+        }
+
+        const formattedValue = `${parseFloat(value).toFixed(2)}`
+        return `${formattedValue}`
+    }
 
     function CandlestickChartDisplay() {
         return (
-            <CandlestickChart.Provider data={candleData}>
-                <CandlestickChart height={360}>
-                    <CandlestickChart.Candles />
-                    <CandlestickChart.Crosshair>
-                        <CandlestickChart.Tooltip />
-                    </CandlestickChart.Crosshair>
-                </CandlestickChart>
-            </CandlestickChart.Provider>
+            <CandlestickChart height={360}>
+                <CandlestickChart.Candles />
+                <CandlestickChart.Crosshair>
+                    <CandlestickChart.Tooltip />
+                </CandlestickChart.Crosshair>
+            </CandlestickChart>
         )
     }
 
     function LineChartDisplay() {
         return (
-            <LineChart.Provider data={lineData}>
-                <LineChart height={360}>
-                    <LineChart.Path color='white' />
-                </LineChart>
-            </LineChart.Provider>
+            <LineChart height={360}>
+                <LineChart.Path color='white' >
+                    <LineChart.HorizontalLine {...horizontalLineProps} />
+                    <LineChart.Dot {...dotProps}/>
+                </LineChart.Path>
+                <LineChart.CursorLine />
+                <LineChart.DatetimeText />
+            </LineChart>
         )
     }
 
@@ -51,6 +67,30 @@ const AgentInfoScreen = ({ route, navigation }) => {
             setCandleChartIconColor('#2e2e2e')
         }
     }, [chart])
+
+    useEffect(() => {
+        if (orderData != {} && lineData.length > 0) {
+            let lineDataConvertedTimes = []
+            const positionConvertedTimestamp = new Date(orderData.time)
+            lineData.forEach(element => {
+                lineDataConvertedTimes.push(new Date(element.timestamp))
+            });
+            const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
+            setDotProps({at: indexOfPosition})
+        }
+    }, [orderData, lineData])
+
+    useLayoutEffect(() => {
+        async function GetOrdersData() {
+            await OrdersInformationFutures(apiKey, apiSecret)
+            .then((data) => {
+                const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
+                setOrderData(order)
+            })
+        }
+
+        GetOrdersData()
+    }, [])
 
     useLayoutEffect(() => {
         async function GetKlinesData() {
@@ -79,54 +119,64 @@ const AgentInfoScreen = ({ route, navigation }) => {
     }, [])
 
     return (
-        <View style={styles.container}>
-            <View
-                style={styles.backButton}>
-                <IconAntDesign.Button
-                    name="left"
-                    size={43}
-                    backgroundColor={'black'}
-                    color="grey"
-                    onPress={() => navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })}
-                    borderRadius={50}
-                    iconStyle={{ marginRight: 5 }}
-                    underlayColor="grey" />
-            </View>
-            <View style={styles.chartGrid}></View>
-            <View style={styles.chartContainer}>
-                <View style={styles.chartHeader}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <View style={{ marginRight: 20 }}>
-                            <Text style={styles.assetText}>BTCUSDT</Text>
-                            <Text style={{ color: 'grey' }}>Perpetual</Text>
-                        </View>
-                        <Text style={{ fontSize: 30, color: 'white' }}>{candleData.length > 0 ? candleData[candleData.length - 1].close : ''}</Text>
+        <LineChart.Provider data={lineData}>
+            <CandlestickChart.Provider data={candleData}>
+                <View style={styles.container}>
+                    <View
+                        style={styles.backButton}>
+                        <IconAntDesign.Button
+                            name="left"
+                            size={43}
+                            backgroundColor={'black'}
+                            color="grey"
+                            onPress={() => navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })}
+                            borderRadius={50}
+                            iconStyle={{ marginRight: 5 }}
+                            underlayColor="grey" />
                     </View>
-                    <View style={{ flexDirection: 'row' }}>
-                        <TouchableOpacity style={[styles.swithToLineButton, { ...lineChartButtonProps }]} onPress={() => {
-                            setChart('line')
-                        }}>
-                            <IconMaterialIcons
-                                name="show-chart"
-                                size={40}
-                                color={lineChartIconColor}
-                            />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.swithToCandlesButton, { ...candleChartButtonProps }]} onPress={() => {
-                            setChart('candlesticks')
-                        }}>
-                            <IconMaterialIcons
-                                name="waterfall-chart"
-                                size={40}
-                                color={candleChartIconColor}
-                            />
-                        </TouchableOpacity>
+                    <View style={styles.chartContainer}>
+                        <View style={styles.chartHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{ marginRight: 20 }}>
+                                    <Text style={styles.assetText}>BTCUSDT</Text>
+                                    <Text style={{ color: 'grey' }}>Perpetual</Text>
+                                </View>
+                                {/* <Text style={{ fontSize: 30, color: 'white' }}>{candleData.length > 0 ? candleData[candleData.length - 1].close : ''}</Text> */}
+                                <LineChart.PriceText
+                                    format={({ value }) => {
+                                        'worklet';
+                                        const formattedPrice = formatUSD(value);
+                                        return `${formattedPrice}`;
+                                    }}
+                                    style={{ fontSize: 30, color: 'white' }}
+                                />
+                            </View>
+                            <View style={{ flexDirection: 'row' }}>
+                                <TouchableOpacity style={[styles.swithToLineButton, { ...lineChartButtonProps }]} onPress={() => {
+                                    setChart('line')
+                                }}>
+                                    <IconMaterialIcons
+                                        name="show-chart"
+                                        size={40}
+                                        color={lineChartIconColor}
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.swithToCandlesButton, { ...candleChartButtonProps }]} onPress={() => {
+                                    setChart('candlesticks')
+                                }}>
+                                    <IconMaterialIcons
+                                        name="waterfall-chart"
+                                        size={40}
+                                        color={candleChartIconColor}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        {chart == 'candlesticks' ? <CandlestickChartDisplay /> : chart == 'line' ? <LineChartDisplay /> : <View></View>}
                     </View>
                 </View>
-                {chart == 'candlesticks' ? <CandlestickChartDisplay /> : chart == 'line' ? <LineChartDisplay /> : <View></View>}
-            </View>
-            <View style={styles.chartGrid}></View>
-        </View>
+            </CandlestickChart.Provider>
+        </LineChart.Provider>
     )
 }
 
@@ -146,11 +196,10 @@ const styles = StyleSheet.create({
     },
     chartContainer: {
         backgroundColor: '#1e1e1e',
-    },
-    chartGrid: {
-        height: 1,
-        backgroundColor: 'grey',
-        width: '100%'
+        marginTop: '5%',
+        borderColor: 'grey',
+        borderTopWidth: 1,
+        borderBottomWidth: 1
     },
     chartHeader: {
         flexDirection: 'row',
@@ -171,9 +220,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 10,
         alignItems: 'center',
         justifyContent: 'center'
-    },
-    swithChartText: {
-        fontSize: 18
     },
     swithToCandlesButton: {
         borderWidth: 2,
