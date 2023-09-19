@@ -7,7 +7,7 @@ import { LineChart } from 'react-native-wagmi-charts';
 import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
-    const { entryPrice, apiKey, apiSecret } = route.params
+    const { entryPrice, apiKey, apiSecret, position } = route.params
     const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
     const [chart, setChart] = useState('line')
@@ -15,9 +15,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [lineChartIconColor, setLineChartIconColor] = useState('grey')
     const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'grey' })
     const [candleChartIconColor, setCandleChartIconColor] = useState('#2e2e2e')
-    const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: entryPrice }, })
+    const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: -1}, })
+    const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'gray'})
     const [dotProps, setDotProps] = useState({})
     const [orderData, setOrderData] = useState({})
+    const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
 
     const formatUSD = value => {
         'worklet';
@@ -47,9 +49,9 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 <LineChart.Path color='white' >
                     <LineChart.HorizontalLine {...horizontalLineProps} />
                     <LineChart.Dot {...dotProps}/>
+                    <LineChart.Highlight {...lineHighlightProps}/>
+                    <LineChart.Gradient color='white'/>
                 </LineChart.Path>
-                <LineChart.CursorLine />
-                <LineChart.DatetimeText />
             </LineChart>
         )
     }
@@ -76,7 +78,15 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 lineDataConvertedTimes.push(new Date(element.timestamp))
             });
             const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
-            setDotProps({at: indexOfPosition})
+            setDotProps({
+                at: indexOfPosition,
+                color: positionColor,
+                size: 6,
+                hasOuterDot: true,
+                outerSize: 12
+            })
+            setLineHighlightProps({color: positionColor, from: indexOfPosition, to: 30})
+            setHorizontalLineProps({at: {index: indexOfPosition}})
         }
     }, [orderData, lineData])
 
@@ -172,7 +182,9 @@ const AgentInfoScreen = ({ route, navigation }) => {
                                 </TouchableOpacity>
                             </View>
                         </View>
+                        <View style={styles.separatorLine}></View>
                         {chart == 'candlesticks' ? <CandlestickChartDisplay /> : chart == 'line' ? <LineChartDisplay /> : <View></View>}
+                        <View style={styles.separatorLine}></View>
                     </View>
                 </View>
             </CandlestickChart.Provider>
@@ -206,7 +218,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginTop: 5,
         marginLeft: 5,
-        marginRight: 5
+        marginRight: 5,
+        borderBottomColor: 'grey',
     },
     assetText: {
         fontSize: 20,
@@ -214,7 +227,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     swithToLineButton: {
-        borderWidth: 2,
         width: 70,
         borderBottomLeftRadius: 10,
         borderTopLeftRadius: 10,
@@ -222,11 +234,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     swithToCandlesButton: {
-        borderWidth: 2,
         width: 70,
         borderBottomRightRadius: 10,
         borderTopRightRadius: 10,
         alignItems: 'center',
         justifyContent: 'center'
     },
+    separatorLine: {
+        height: 1,
+        width: '100%',
+        backgroundColor: '#3e3e3e',
+        alignSelf: 'center',
+        marginTop: 5
+    }
 })

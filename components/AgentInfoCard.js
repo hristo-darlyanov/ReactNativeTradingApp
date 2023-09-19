@@ -60,7 +60,8 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                         params: {
                             entryPrice: parseFloat(positionData.entryPrice),
                             apiKey: apiKey,
-                            apiSecret: apiSecret
+                            apiSecret: apiSecret,
+                            position: position
                         }
                     })
                 }
@@ -86,10 +87,10 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                 <View style={styles.secondHalfInfoWrapper}>
                     <LinearGradient
                         style={styles.linearGradient}
-                        colors={[profitColor, profitColor, 'transparent']}
+                        colors={[profitColor, 'transparent']}
                         start={{ x: 1, y: 1 }}
                         end={{ x: 0.1, y: 0.9 }}
-                        locations={[0, 0.4, 1]}>
+                        locations={[0, 1]}>
                         <View style={styles.percentageIncreaseInfoWrapper}>
                             <Text style={styles.percentageIncreaseText}>{parseFloat(profitPercentage).toFixed(2).toString()}%</Text>
                             <IconAntDesign
