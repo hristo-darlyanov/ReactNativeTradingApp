@@ -15,8 +15,8 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [lineChartIconColor, setLineChartIconColor] = useState('grey')
     const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'grey' })
     const [candleChartIconColor, setCandleChartIconColor] = useState('#2e2e2e')
-    const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: -1}, })
-    const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'gray'})
+    const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: -1 }, })
+    const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'gray' })
     const [dotProps, setDotProps] = useState({})
     const [orderData, setOrderData] = useState({})
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
@@ -35,6 +35,20 @@ const AgentInfoScreen = ({ route, navigation }) => {
         return `${formattedValue}`
     }
 
+    const formatDate = value => {
+        'worklet'
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        if (value == '-1') {
+            const tempDate = new Date(lineData[lineData.length - 1].timestamp)
+            const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
+            return date
+        }
+
+        const tempDate = new Date(value)
+        const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
+        return date
+    }
+
     function CandlestickChartDisplay() {
         return (
             <CandlestickChart height={360}>
@@ -51,10 +65,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
             <LineChart height={360}>
                 <LineChart.Path color='white' >
                     <LineChart.HorizontalLine {...horizontalLineProps} />
-                    <LineChart.Dot {...dotProps}/>
-                    <LineChart.Highlight {...lineHighlightProps}/>
-                    <LineChart.Gradient color='white'/>
+                    <LineChart.Dot {...dotProps} />
+                    <LineChart.Highlight {...lineHighlightProps} />
+                    <LineChart.Gradient color='white' />
                 </LineChart.Path>
+                <LineChart.CursorLine />
             </LineChart>
         )
     }
@@ -77,9 +92,9 @@ const AgentInfoScreen = ({ route, navigation }) => {
         if (orderData != {} && lineData.length > 0) {
             let lineDataConvertedTimes = []
             const positionConvertedTimestamp = new Date(orderData.time)
-            lineData.forEach(element => {
-                lineDataConvertedTimes.push(new Date(element.timestamp))
-            });
+            for (let index = 0; index < lineData.length; index++) {
+                lineDataConvertedTimes.push(new Date(lineData[index].timestamp))
+            }
             const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
             setDotProps({
                 at: indexOfPosition,
@@ -88,18 +103,18 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 hasOuterDot: true,
                 outerSize: 12
             })
-            setLineHighlightProps({color: positionColor, from: indexOfPosition, to: 30})
-            setHorizontalLineProps({at: {index: indexOfPosition}})
+            setLineHighlightProps({ color: positionColor, from: indexOfPosition, to: 30 })
+            setHorizontalLineProps({ at: { index: indexOfPosition } })
         }
     }, [orderData, lineData])
 
     useLayoutEffect(() => {
         async function GetOrdersData() {
             await OrdersInformationFutures(apiKey, apiSecret)
-            .then((data) => {
-                const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
-                setOrderData(order)
-            })
+                .then((data) => {
+                    const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
+                    setOrderData(order)
+                })
         }
 
         GetOrdersData()
@@ -188,6 +203,15 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         <View style={styles.separatorLine}></View>
                         {chart == 'candlesticks' ? <CandlestickChartDisplay /> : chart == 'line' ? <LineChartDisplay /> : <View></View>}
                         <View style={styles.separatorLine}></View>
+                        <View style={styles.dateInfo}>
+                            <LineChart.DatetimeText
+                                format={({ value }) => {
+                                    'worklet';
+                                    const formattedDate = formatDate(value);
+                                    return formattedDate;
+                                }} 
+                                style={styles.formattedDate}/>
+                        </View>
                     </View>
                 </View>
             </CandlestickChart.Provider>
@@ -222,6 +246,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginLeft: 5,
         marginRight: 5,
+        marginBottom: 5,
         borderBottomColor: 'grey',
     },
     assetText: {
@@ -248,6 +273,15 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#3e3e3e',
         alignSelf: 'center',
-        marginTop: 5
+    },
+    dateInfo: {
+        width: '100%',
+        height: 30
+    },
+    formattedDate: {
+        color: 'white',
+        fontSize: 20,
+        fontWeight: '400',
+        alignSelf: 'center',
     }
 })
