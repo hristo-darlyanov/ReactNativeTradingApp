@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     chartContainer: {
         backgroundColor: '#1e1e1e',
         marginTop: '5%',
-        borderColor: 'grey',
+        borderColor: '#3e3e3e',
         borderTopWidth: 1,
         borderBottomWidth: 1
     },
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     },
     formattedDate: {
         color: 'white',
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: '400',
         alignSelf: 'center',
     }

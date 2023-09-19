@@ -78,11 +78,11 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                     <Text style={styles.infoText}>Entry price: <Text style={[
                         styles.infoText,
                         { color: entryPriceColor }
-                    ]}>{parseFloat(positionData.entryPrice).toFixed()}</Text>{entryPrice.toString()}</Text>
+                    ]}>{ positionData.length != 0 ? parseFloat(positionData.entryPrice).toFixed() : 'NONE'}</Text></Text>
                     <Text style={styles.infoText}>Market price: <Text style={[
                         styles.infoText,
                         { color: 'white' }
-                    ]}>{parseFloat(positionData.markPrice).toFixed().toString()}</Text></Text>
+                    ]}>{ positionData.length != 0 ? parseFloat(positionData.markPrice).toFixed().toString() : "NONE"}</Text></Text>
                 </View>
                 <View style={styles.secondHalfInfoWrapper}>
                     <LinearGradient
@@ -99,7 +99,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                                 style={{ marginLeft: 5 }}
                                 color="white" />
                         </View>
-                        <Text style={styles.unrealizedProfitText}>( {parseFloat(positionData.unRealizedProfit).toFixed(2).toString()} USDT )</Text>
+                        <Text style={styles.unrealizedProfitText}>( { positionData.length != 0 ? parseFloat(positionData.unRealizedProfit).toFixed(2).toString() : "0"} USDT )</Text>
                     </LinearGradient>
                 </View>
             </TouchableOpacity>
