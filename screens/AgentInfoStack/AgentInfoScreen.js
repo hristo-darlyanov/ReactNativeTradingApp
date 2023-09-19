@@ -24,7 +24,10 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const formatUSD = value => {
         'worklet';
         if (value === '') {
-            const formattedValue = `${parseFloat(candleData.length > 0 ? candleData[candleData.length - 1].close : '').toFixed(2)}`
+            if (candleData.length == 0) {
+                return ''
+            }
+            const formattedValue = `${parseFloat(candleData[candleData.length - 1].close).toFixed(2)}`
             return `${formattedValue}`
         }
 
