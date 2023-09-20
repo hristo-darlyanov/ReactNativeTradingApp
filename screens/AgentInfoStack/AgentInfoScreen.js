@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'react-native'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconMaterialIcons } from 'react-native-vector-icons/MaterialIcons';
@@ -160,7 +160,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
     return (
         <LineChart.Provider data={lineData}>
             <CandlestickChart.Provider data={candleData}>
-                <View style={styles.container}>
+                <ScrollView style={styles.container}>
                     <View style={styles.headerContainer}>
                         <IconAntDesign.Button
                             name="left"
@@ -171,15 +171,15 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             borderRadius={50}
                             iconStyle={{ marginRight: 5 }}
                             underlayColor="grey" />
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={styles.headerTitleWrapper}>
                             <Text style={styles.headerText}>{name}</Text>
-                            <Image style={styles.image} source={image}/>
+                            <Image style={styles.image} source={image} />
                         </View>
                     </View>
                     <View style={styles.chartContainer}>
                         <View style={styles.chartHeader}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={{ marginRight: 20 }}>
+                                <View style={{ marginRight: 20, marginLeft: 5 }}>
                                     <Text style={styles.assetText}>BTCUSDT</Text>
                                     <Text style={{ color: 'grey' }}>Perpetual</Text>
                                 </View>
@@ -227,7 +227,15 @@ const AgentInfoScreen = ({ route, navigation }) => {
                                 style={styles.formattedDate} />
                         </View>
                     </View>
-                </View>
+                    <View style={styles.infoContainer}>
+                        <Text style={{color: 'white', fontSize: 30, fontWeight: '600'}}>Trade statistics</Text>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
+                            <Text style={styles.infoValueText}>20</Text>
+                        </View>
+                        <View style={[styles.separatorLine, { backgroundColor: 'white' }]}></View>
+                    </View>
+                </ScrollView>
             </CandlestickChart.Provider>
         </LineChart.Provider>
     )
@@ -254,7 +262,8 @@ const styles = StyleSheet.create({
         marginTop: '5%',
         borderColor: '#3e3e3e',
         borderTopWidth: 1,
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
+        borderRadius: 20
     },
     chartHeader: {
         flexDirection: 'row',
@@ -302,12 +311,37 @@ const styles = StyleSheet.create({
     },
     image: {
         width: 50,
-        height: 50
+        height: 50,
+        marginRight: '5%'
     },
     headerText: {
         fontSize: 44,
         fontWeight: 'bold',
         color: 'white',
-        marginRight: '10%'
+        marginRight: '5%'
+    },
+    headerTitleWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    infoContainer: {
+        flex: 1,
+        width: '95%',
+        marginTop: '5%',
+        alignSelf: 'center'
+    },
+    infoDescriptionText: {
+        color: '#9e9e9e',
+        fontSize: 28
+    },
+    infoValueText: {
+        color: 'white',
+        fontSize: 28,
+    },
+    infoWrapper: {
+        flexDirection: 'row', 
+        justifyContent: 'space-between',
+        marginBottom: '5%',
+        marginTop: '2%'
     }
 })
