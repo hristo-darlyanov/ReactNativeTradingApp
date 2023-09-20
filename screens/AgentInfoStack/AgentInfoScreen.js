@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconMaterialIcons } from 'react-native-vector-icons/MaterialIcons';
@@ -39,6 +39,9 @@ const AgentInfoScreen = ({ route, navigation }) => {
         'worklet'
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         if (value == '-1') {
+            if (lineData.length != 30) {
+                return ''
+            }
             const tempDate = new Date(lineData[lineData.length - 1].timestamp)
             const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
             return date
@@ -90,7 +93,6 @@ const AgentInfoScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         if (orderData != {} && lineData.length == 30) {
-            console.log(lineData)
             let lineDataConvertedTimes = []
             const positionConvertedTimestamp = new Date(orderData.time)
             for (let index = 0; index < lineData.length; index++) {
@@ -110,7 +112,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 const tempLineData = lineData
                 tempLineData[indexOfPosition] = {
                     value: entryPrice.toFixed(2),
-                    timestamp: orderData.timestamp
+                    timestamp: orderData.time
                 }
                 setLineData(tempLineData)
             }
@@ -159,8 +161,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
         <LineChart.Provider data={lineData}>
             <CandlestickChart.Provider data={candleData}>
                 <View style={styles.container}>
-                    <View
-                        style={styles.backButton}>
+                    <View style={styles.headerContainer}>
                         <IconAntDesign.Button
                             name="left"
                             size={43}
@@ -170,6 +171,10 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             borderRadius={50}
                             iconStyle={{ marginRight: 5 }}
                             underlayColor="grey" />
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={styles.headerText}>{name}</Text>
+                            <Image style={styles.image} source={image}/>
+                        </View>
                     </View>
                     <View style={styles.chartContainer}>
                         <View style={styles.chartHeader}>
@@ -235,12 +240,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'black'
     },
-    backButton: {
+    headerContainer: {
         marginTop: '10%',
         marginLeft: '3%',
-        left: 0,
-        top: 0,
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%'
     },
     chartContainer: {
         backgroundColor: '#1e1e1e',
@@ -292,5 +299,15 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '400',
         alignSelf: 'center',
+    },
+    image: {
+        width: 50,
+        height: 50
+    },
+    headerText: {
+        fontSize: 44,
+        fontWeight: 'bold',
+        color: 'white',
+        marginRight: '10%'
     }
 })
