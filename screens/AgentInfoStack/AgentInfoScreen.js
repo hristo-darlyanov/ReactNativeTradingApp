@@ -7,7 +7,7 @@ import { LineChart } from 'react-native-wagmi-charts';
 import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
-    const { entryPrice, apiKey, apiSecret, position } = route.params
+    const { entryPrice, apiKey, apiSecret, position, image, name, exchange, markPrice } = route.params
     const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
     const [chart, setChart] = useState('line')
@@ -16,7 +16,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'grey' })
     const [candleChartIconColor, setCandleChartIconColor] = useState('#2e2e2e')
     const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: -1 }, })
-    const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'gray' })
+    const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'white' })
     const [dotProps, setDotProps] = useState({})
     const [orderData, setOrderData] = useState({})
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
@@ -89,22 +89,31 @@ const AgentInfoScreen = ({ route, navigation }) => {
     }, [chart])
 
     useEffect(() => {
-        if (orderData != {} && lineData.length > 0) {
+        if (orderData != {} && lineData.length == 30) {
+            console.log(lineData)
             let lineDataConvertedTimes = []
             const positionConvertedTimestamp = new Date(orderData.time)
             for (let index = 0; index < lineData.length; index++) {
                 lineDataConvertedTimes.push(new Date(lineData[index].timestamp))
             }
-            const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
-            setDotProps({
-                at: indexOfPosition,
-                color: positionColor,
-                size: 6,
-                hasOuterDot: true,
-                outerSize: 12
-            })
-            setLineHighlightProps({ color: positionColor, from: indexOfPosition, to: 30 })
-            setHorizontalLineProps({ at: { index: indexOfPosition } })
+            if (position != 'hold') {
+                const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
+                setDotProps({
+                    at: indexOfPosition,
+                    color: positionColor,
+                    size: 6,
+                    hasOuterDot: true,
+                    outerSize: 12
+                })
+                setLineHighlightProps({ color: positionColor, from: indexOfPosition, to: 30 })
+                setHorizontalLineProps({ at: { index: indexOfPosition } })
+                const tempLineData = lineData
+                tempLineData[indexOfPosition] = {
+                    value: entryPrice.toFixed(2),
+                    timestamp: orderData.timestamp
+                }
+                setLineData(tempLineData)
+            }
         }
     }, [orderData, lineData])
 
@@ -209,8 +218,8 @@ const AgentInfoScreen = ({ route, navigation }) => {
                                     'worklet';
                                     const formattedDate = formatDate(value);
                                     return formattedDate;
-                                }} 
-                                style={styles.formattedDate}/>
+                                }}
+                                style={styles.formattedDate} />
                         </View>
                     </View>
                 </View>

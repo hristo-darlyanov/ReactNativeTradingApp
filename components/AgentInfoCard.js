@@ -14,7 +14,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
     const image = exchange == 'binance' ? binanceIcon : null
     const entryPrice = position == 'hold' ? 'NONE' : ''
     const { isRefreshing, setIsRefreshing } = useContext(RefreshingAgentsTabContext)
-    const {dataLoaded, setDataLoaded} = useContext(LoadedAgentInfoContext)
+    const { dataLoaded, setDataLoaded } = useContext(LoadedAgentInfoContext)
     const [profitColor, setProfitColor] = useState('#1e1e1e')
     const [positionData, setPositionData] = useState([])
     const [profitPercentage, setProfitPercentage] = useState('0')
@@ -61,7 +61,11 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                             entryPrice: parseFloat(positionData.entryPrice),
                             apiKey: apiKey,
                             apiSecret: apiSecret,
-                            position: position
+                            position: position,
+                            image: image,
+                            name: name,
+                            exchange: exchange,
+                            markPrice: positionData.markPrice
                         }
                     })
                 }
@@ -78,11 +82,11 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                     <Text style={styles.infoText}>Entry price: <Text style={[
                         styles.infoText,
                         { color: entryPriceColor }
-                    ]}>{ positionData.length != 0 ? parseFloat(positionData.entryPrice).toFixed() : 'NONE'}</Text></Text>
+                    ]}>{positionData.length != 0 ? parseFloat(positionData.entryPrice).toFixed() : 'NONE'}</Text></Text>
                     <Text style={styles.infoText}>Market price: <Text style={[
                         styles.infoText,
                         { color: 'white' }
-                    ]}>{ positionData.length != 0 ? parseFloat(positionData.markPrice).toFixed().toString() : "NONE"}</Text></Text>
+                    ]}>{positionData.length != 0 ? parseFloat(positionData.markPrice).toFixed().toString() : "NONE"}</Text></Text>
                 </View>
                 <View style={styles.secondHalfInfoWrapper}>
                     <LinearGradient
@@ -99,7 +103,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                                 style={{ marginLeft: 5 }}
                                 color="white" />
                         </View>
-                        <Text style={styles.unrealizedProfitText}>( { positionData.length != 0 ? parseFloat(positionData.unRealizedProfit).toFixed(2).toString() : "0"} USDT )</Text>
+                        <Text style={styles.unrealizedProfitText}>( {positionData.length != 0 ? parseFloat(positionData.unRealizedProfit).toFixed(2).toString() : "0"} USDT )</Text>
                     </LinearGradient>
                 </View>
             </TouchableOpacity>
