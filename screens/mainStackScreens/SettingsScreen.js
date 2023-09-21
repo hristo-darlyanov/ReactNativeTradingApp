@@ -168,9 +168,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalView: {
-        backgroundColor: 'black',
+        backgroundColor: '#1e1e1e',
         borderRadius: 10,
-        borderColor: 'grey',
         borderWidth: 1,
         width: '90%',
         height: '20%',
@@ -186,7 +185,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingVertical: 10,
         width: '47%',
-        backgroundColor: '#1e1e1e'
+        backgroundColor: '#3e3e3e'
     },
     modalButtonWrapper: {
         flexDirection: 'row',
