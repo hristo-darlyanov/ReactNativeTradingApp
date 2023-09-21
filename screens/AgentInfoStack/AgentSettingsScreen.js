@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const LinkedAccountsCreateScreen = () => {
+const AgentSettingsScreen = () => {
   return (
     <View>
-      <Text>LinkedAccountsCreateScreen</Text>
+      <Text>AgentSettingsScreen</Text>
     </View>
   )
 }
 
-export default LinkedAccountsCreateScreen
+export default AgentSettingsScreen
 
 const styles = StyleSheet.create({})

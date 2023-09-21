@@ -13,7 +13,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [chart, setChart] = useState('line')
     const [lineChartButtonProps, setLineChartButtonProps] = useState({ borderColor: '#3e3e3e', backgroundColor: '#3e3e3e' })
     const [lineChartIconColor, setLineChartIconColor] = useState('grey')
-    const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'grey' })
+    const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'white' })
     const [candleChartIconColor, setCandleChartIconColor] = useState('#2e2e2e')
     const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: -1 }, })
     const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'white' })
@@ -79,15 +79,15 @@ const AgentInfoScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         if (chart == 'candlesticks') {
-            setCandleChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: '#3e3e3e' })
-            setCandleChartIconColor('grey')
-            setLineChartButtonProps({ borderColor: 'grey', backgroundColor: 'grey' })
-            setLineChartIconColor('#2e2e2e')
-        } else if (chart == 'line') {
-            setLineChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: '#3e3e3e' })
-            setLineChartIconColor('grey')
-            setCandleChartButtonProps({ borderColor: 'grey', backgroundColor: 'grey' })
+            setCandleChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
             setCandleChartIconColor('#2e2e2e')
+            setLineChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e' })
+            setLineChartIconColor('grey')
+        } else if (chart == 'line') {
+            setLineChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
+            setLineChartIconColor('#2e2e2e')
+            setCandleChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e'})
+            setCandleChartIconColor('grey')
         }
     }, [chart])
 
@@ -185,14 +185,14 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             size={43}
                             backgroundColor={'black'}
                             color="grey"
-                            onPress={() => {}}
+                            onPress={() => navigation.navigate('AgentSettingsScreen')}
                             borderRadius={50}
                             iconStyle={{ marginRight: '5%' }}/>
                     </View>
                     <View style={styles.chartContainer}>
                         <View style={styles.chartHeader}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={{ marginRight: 20, marginLeft: 5 }}>
+                                <View style={{ marginRight: 10, marginLeft: 5 }}>
                                     <Text style={styles.assetText}>BTCUSDT</Text>
                                     <Text style={{ color: 'grey' }}>Perpetual</Text>
                                 </View>
@@ -372,12 +372,12 @@ const styles = StyleSheet.create({
     },
     infoDescriptionText: {
         color: '#adadad',
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: 'bold'
     },
     infoValueText: {
         color: 'white',
-        fontSize: 28,
+        fontSize: 22,
         fontWeight: 'bold'
     },
     infoWrapper: {
