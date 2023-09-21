@@ -175,12 +175,19 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             color="grey"
                             onPress={() => navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })}
                             borderRadius={50}
-                            iconStyle={{ marginRight: 5 }}
-                            underlayColor="grey" />
+                            iconStyle={{ marginRight: 5 }} />
                         <View style={styles.headerTitleWrapper}>
                             <Text style={styles.headerText}>{name}</Text>
                             <Image style={styles.image} source={image} />
                         </View>
+                        <IconMaterialIcons.Button
+                            name="settings"
+                            size={43}
+                            backgroundColor={'black'}
+                            color="grey"
+                            onPress={() => {}}
+                            borderRadius={50}
+                            iconStyle={{ marginRight: '5%' }}/>
                     </View>
                     <View style={styles.chartContainer}>
                         <View style={styles.chartHeader}>
@@ -237,11 +244,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
-                            <Text style={[styles.infoValueText, {color: positionColor}]}>{parseFloat(unrealizedProfitPerc).toFixed(2)}%</Text>
+                            <Text style={[styles.infoValueText, { color: positionColor }]}>{parseFloat(unrealizedProfitPerc).toFixed(2)}%</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit </Text>
-                            <Text style={[styles.infoValueText, {color: positionColor}]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
+                            <Text style={[styles.infoValueText, { color: positionColor }]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Entry price </Text>
@@ -345,7 +352,6 @@ const styles = StyleSheet.create({
     image: {
         width: 50,
         height: 50,
-        marginRight: '5%'
     },
     headerText: {
         fontSize: 44,
@@ -361,7 +367,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '95%',
         marginTop: '5%',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        marginBottom: '5%'
     },
     infoDescriptionText: {
         color: '#adadad',
@@ -383,5 +390,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginTop: '1%',
         marginBottom: '1%'
-    }
+    },
+    settingsText: {
+        fontSize: 30,
+        fontWeight: 'bold'
+    },
 })
