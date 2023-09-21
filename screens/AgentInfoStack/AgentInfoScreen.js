@@ -7,7 +7,7 @@ import { LineChart } from 'react-native-wagmi-charts';
 import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
-    const { entryPrice, apiKey, apiSecret, position, image, name, exchange, markPrice } = route.params
+    const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit } = route.params
     const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
     const [chart, setChart] = useState('line')
@@ -19,6 +19,8 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'white' })
     const [dotProps, setDotProps] = useState({})
     const [orderData, setOrderData] = useState({})
+    const [positionEntryDate, setPositionEntryDate] = useState('')
+    const [positionEntryDateNumbersOnly, setPositionEntryDateNumbersOnly] = useState('')
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
 
     const formatUSD = value => {
@@ -42,9 +44,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
             if (lineData.length != 30) {
                 return ''
             }
-            const tempDate = new Date(lineData[lineData.length - 1].timestamp)
-            const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
-            return date
+            return positionEntryDate
         }
 
         const tempDate = new Date(value)
@@ -94,6 +94,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
     useEffect(() => {
         if (orderData != {} && lineData.length == 30) {
             let lineDataConvertedTimes = []
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
             const positionConvertedTimestamp = new Date(orderData.time)
             for (let index = 0; index < lineData.length; index++) {
                 lineDataConvertedTimes.push(new Date(lineData[index].timestamp))
@@ -115,6 +116,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
                     timestamp: orderData.time
                 }
                 setLineData(tempLineData)
+                const tempDate = new Date(lineData[lineData.length - 1].timestamp)
+                const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
+                const cleanDate = `${tempDate.getDate()} | ${tempDate.getMonth()} | ${tempDate.getFullYear()}`
+                setPositionEntryDate(date)
+                setPositionEntryDateNumbersOnly(cleanDate)
             }
         }
     }, [orderData, lineData])
@@ -228,12 +234,35 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         </View>
                     </View>
                     <View style={styles.infoContainer}>
-                        <Text style={{color: 'white', fontSize: 30, fontWeight: '600'}}>Trade statistics</Text>
+                        <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
-                            <Text style={styles.infoValueText}>20</Text>
+                            <Text style={[styles.infoValueText, {color: positionColor}]}>{parseFloat(unrealizedProfitPerc).toFixed(2)}%</Text>
                         </View>
-                        <View style={[styles.separatorLine, { backgroundColor: 'white' }]}></View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Unrealized profit </Text>
+                            <Text style={[styles.infoValueText, {color: positionColor}]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Entry price </Text>
+                            <Text style={styles.infoValueText}>{parseFloat(entryPrice).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Market price</Text>
+                            <Text style={styles.infoValueText}>{parseFloat(markPrice).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Margin</Text>
+                            <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? parseFloat(orderData.cumQuote).toFixed(2) : '0'} USDT</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Type</Text>
+                            <Text style={[styles.infoValueText, { color: 'grey' }]}>Market</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Entry date</Text>
+                            <Text style={styles.infoValueText}>{positionEntryDateNumbersOnly}</Text>
+                        </View>
                     </View>
                 </ScrollView>
             </CandlestickChart.Provider>
@@ -331,17 +360,24 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     infoDescriptionText: {
-        color: '#9e9e9e',
-        fontSize: 28
+        color: '#adadad',
+        fontSize: 28,
+        fontWeight: 'bold'
     },
     infoValueText: {
         color: 'white',
         fontSize: 28,
+        fontWeight: 'bold'
     },
     infoWrapper: {
-        flexDirection: 'row', 
+        flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: '5%',
-        marginTop: '2%'
+        paddingVertical: 10,
+        borderRadius: 25,
+        borderWidth: 1,
+        backgroundColor: '#1e1e1e',
+        paddingHorizontal: 10,
+        marginTop: '1%',
+        marginBottom: '1%'
     }
 })

@@ -64,7 +64,8 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                             position: position,
                             image: image,
                             name: name,
-                            exchange: exchange,
+                            unrealizedProfitPerc: profitPercentage,
+                            unrealizedProfit: positionData.unRealizedProfit,
                             markPrice: positionData.markPrice
                         }
                     })
