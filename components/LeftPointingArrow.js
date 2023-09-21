@@ -7,7 +7,7 @@ const LeftPointingArrow = () => {
             size={27}
             backgroundColor={'black'}
             color="white"
-            style={{ marginRight: 5 }}
+            style={{ marginRight: 13 }}
             onPress={() => { }}
         />
     )

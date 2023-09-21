@@ -124,11 +124,12 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     button: {
-        width: '90%',
+        width: '95%',
         paddingVertical: 10,
         alignItems: 'center',
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignSelf: 'flex-end'
     },
     buttonText: {
         color: '#919191',
