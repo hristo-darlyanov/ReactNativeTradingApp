@@ -263,6 +263,10 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             <Text style={styles.infoDescriptionText}>Entry date</Text>
                             <Text style={styles.infoValueText}>{positionEntryDateNumbersOnly}</Text>
                         </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Executed quantity</Text>
+                            <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? orderData.executedQty : '0'}</Text>
+                        </View>
                     </View>
                 </ScrollView>
             </CandlestickChart.Provider>
