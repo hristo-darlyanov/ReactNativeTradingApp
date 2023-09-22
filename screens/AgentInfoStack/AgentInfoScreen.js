@@ -190,7 +190,17 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             size={43}
                             backgroundColor={'black'}
                             color="grey"
-                            onPress={() => navigation.navigate('AgentSettingsScreen')}
+                            onPress={() => navigation.navigate('AgentSettingsScreen', {
+                                entryPrice: entryPrice,
+                                apiKey: apiKey,
+                                apiSecret: apiSecret,
+                                position: position,
+                                image: image,
+                                name: name,
+                                markPrice: markPrice,
+                                unrealizedProfitPerc: unrealizedProfitPerc,
+                                unrealizedProfit: unrealizedProfit
+                            })}
                             borderRadius={50}
                             iconStyle={{ marginRight: '5%' }} />
                     </View>
