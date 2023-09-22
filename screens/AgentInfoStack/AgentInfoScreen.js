@@ -86,7 +86,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
         } else if (chart == 'line') {
             setLineChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
             setLineChartIconColor('#2e2e2e')
-            setCandleChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e'})
+            setCandleChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e' })
             setCandleChartIconColor('grey')
         }
     }, [chart])
@@ -127,11 +127,16 @@ const AgentInfoScreen = ({ route, navigation }) => {
 
     useLayoutEffect(() => {
         async function GetOrdersData() {
-            await OrdersInformationFutures(apiKey, apiSecret)
-                .then((data) => {
-                    const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
-                    setOrderData(order)
-                })
+            if (position != 'hold') {
+                await OrdersInformationFutures(apiKey, apiSecret)
+                    .then((data) => {
+                        const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
+                        setOrderData(order)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+            }
         }
 
         GetOrdersData()
@@ -187,7 +192,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                             color="grey"
                             onPress={() => navigation.navigate('AgentSettingsScreen')}
                             borderRadius={50}
-                            iconStyle={{ marginRight: '5%' }}/>
+                            iconStyle={{ marginRight: '5%' }} />
                     </View>
                     <View style={styles.chartContainer}>
                         <View style={styles.chartHeader}>
@@ -244,7 +249,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
-                            <Text style={[styles.infoValueText, { color: positionColor }]}>{parseFloat(unrealizedProfitPerc).toFixed(2)}%</Text>
+                            <Text style={[styles.infoValueText, { color: positionColor }]}>{position != 'hold' ? parseFloat(unrealizedProfitPerc).toFixed(2) : '0'}%</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit </Text>
@@ -268,7 +273,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Entry date</Text>
-                            <Text style={styles.infoValueText}>{positionEntryDateNumbersOnly}</Text>
+                            <Text style={styles.infoValueText}>{position != 'hold' ? positionEntryDateNumbersOnly : 'Not in a trade'}</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Executed quantity</Text>
