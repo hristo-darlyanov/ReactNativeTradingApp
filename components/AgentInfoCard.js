@@ -83,7 +83,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                     <Text style={styles.infoText}>Entry price: <Text style={[
                         styles.infoText,
                         { color: entryPriceColor }
-                    ]}>{positionData.length != 0 ? parseFloat(positionData.entryPrice).toFixed() : 'NONE'}</Text></Text>
+                    ]}>{positionData.length != 0 && position != 'hold'? parseFloat(positionData.entryPrice).toFixed() : 'NONE'}</Text></Text>
                     <Text style={styles.infoText}>Market price: <Text style={[
                         styles.infoText,
                         { color: 'white' }
@@ -97,9 +97,9 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                         end={{ x: 0.1, y: 0.9 }}
                         locations={[0, 1]}>
                         <View style={styles.percentageIncreaseInfoWrapper}>
-                            <Text style={styles.percentageIncreaseText}>{parseFloat(profitPercentage).toFixed(2).toString()}%</Text>
+                            <Text style={styles.percentageIncreaseText}>{ position != 'hold' ? parseFloat(profitPercentage).toFixed(2).toString() : '0'}%</Text>
                             <IconAntDesign
-                                name={percentageIncreaseImage}
+                                name={position != 'hold' ? percentageIncreaseImage : 'minus'}
                                 size={20}
                                 style={{ marginLeft: 5 }}
                                 color="white" />

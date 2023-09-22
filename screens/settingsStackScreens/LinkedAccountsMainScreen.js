@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     backButton: {
-        marginTop: '10%',
+        marginTop: '5%',
         marginLeft: '3%',
         left: 0,
         top: 0,
