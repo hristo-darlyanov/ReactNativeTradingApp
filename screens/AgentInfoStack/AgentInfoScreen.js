@@ -248,6 +248,10 @@ const AgentInfoScreen = ({ route, navigation }) => {
                     <View style={styles.infoContainer}>
                         <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
                         <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Side </Text>
+                            <Text style={[styles.infoValueText, { color: positionColor }]}>{position.toUpperCase()}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
                             <Text style={[styles.infoValueText, { color: positionColor }]}>{position != 'hold' ? parseFloat(unrealizedProfitPerc).toFixed(2) : '0'}%</Text>
                         </View>
