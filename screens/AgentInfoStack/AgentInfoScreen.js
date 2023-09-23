@@ -132,6 +132,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                     .then((data) => {
                         const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
                         setOrderData(order)
+                        console.log(order)
                     })
                     .catch(error => {
                         console.log(error)

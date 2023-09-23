@@ -1,12 +1,13 @@
 import { StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { auth, db } from '../../config/Firebase';
-import { query, collection, where, onSnapshot } from 'firebase/firestore';
+import { query, collection, where, onSnapshot, updateDoc, doc, deleteField } from 'firebase/firestore';
 import React, { useState, useLayoutEffect } from 'react'
 import LeftPointingArrow from '../../components/LeftPointingArrow';
 
 const AgentSettingsScreen = ({ route, navigation }) => {
   const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit } = route.params
+  const [currentPosition, setCurrentPosition] = useState(position)
   const [deleteAgentModalVisible, setDeleteAgentModalVisible] = useState(false)
   const [changeAgentStateModalVisible, setChangeAgentStateModalVisible] = useState(false)
   const [agentData, setAgentData] = useState([])
@@ -17,12 +18,39 @@ const AgentSettingsScreen = ({ route, navigation }) => {
       setAgentData(updatedQuery.docs.map(item => ({
         associatedUser: item.data().associatedAccountUserId,
         agentName: item.data().associatedAccountName,
+        prevPosition: item.data().prevPosition,
         id: item.id
       })))
     })
 
     return snapShotUnsubscribe
   }, [])
+
+  async function HandleAgentChangeState() {
+    setChangeAgentStateModalVisible(false)
+    let sAgents = agentData.filter(x => x.agentName == name)
+    sAgents = sAgents.find(x => x.associatedUser == auth.currentUser.uid)
+    if (currentPosition != 'inactive') {
+      const positionRef = doc(db, 'agents', sAgents.id)
+      await updateDoc(positionRef, {position: 'inactive', prevPosition: position})
+      .then(() => {
+        setCurrentPosition('inactive')
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    } else {
+      const positionRef = doc(db, 'agents', sAgents.id)
+      let p = sAgents.prevPosition
+      await updateDoc(positionRef, {position: sAgents.prevPosition, prevPosition: deleteField()})
+      .then(() => {
+        setCurrentPosition(p)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    }
+  }
 
   async function HandleAgentDeletion() {
     setDeleteAgentModalVisible(false)
@@ -43,13 +71,13 @@ const AgentSettingsScreen = ({ route, navigation }) => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={styles.modalDescriptionTextWrapper}>
-              <Text style={styles.modalDescriptionText}>{position != 'inactive' ? "Setting the agent to inactive will not close the position immediately. The position will only be closed once the agent has completed its current task. Afterward, the agent will no longer be able to be trade." : "Activating the agent will allow it to resume its operations from where it left off previously."}</Text>
+              <Text style={styles.modalDescriptionText}>{currentPosition != 'inactive' ? "Setting the agent to inactive will not close the position immediately. The position will only be closed once the agent has completed its current task. Afterward, the agent will no longer be able to be trade." : "Activating the agent will allow it to resume its operations from where it left off previously."}</Text>
             </View>
             <View style={styles.modalButtonWrapper}>
               <TouchableOpacity
                 style={styles.modalDeleteButton}
-                onPress={() => {}}>
-                <Text style={styles.modalTextStyle}>Delete</Text>
+                onPress={() => HandleAgentChangeState()}>
+                <Text style={styles.modalTextStyle}>{currentPosition != 'inactive' ? 'Set inactive' : 'Set active'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalCloseButton}
@@ -118,7 +146,7 @@ const AgentSettingsScreen = ({ route, navigation }) => {
             entryPrice: entryPrice,
             apiKey: apiKey,
             apiSecret: apiSecret,
-            position: position,
+            position: currentPosition,
             image: image,
             name: name,
             markPrice: markPrice,
@@ -143,7 +171,7 @@ const AgentSettingsScreen = ({ route, navigation }) => {
         <View style={styles.separatorLine}></View>
         <TouchableOpacity style={styles.option} onPress={() => setChangeAgentStateModalVisible(true)}>
           <Text style={styles.optionText}>State of agent</Text>
-          <Text style={[styles.agentState, { color: position != 'inactive' ? '#33ff1c' : 'red' }]}>{position != 'inactive' ? 'ACTIVE' : 'INACTIVE'}</Text>
+          <Text style={[styles.agentState, { color: currentPosition != 'inactive' ? '#33ff1c' : 'red' }]}>{currentPosition != 'inactive' ? 'ACTIVE' : 'INACTIVE'}</Text>
         </TouchableOpacity>
 
         <View style={styles.optionsTitleWrapper}>
