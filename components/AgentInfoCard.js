@@ -78,7 +78,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                     </View>
                     <Text style={styles.infoText}>Position: <Text style={[
                         styles.infoText,
-                        { color: positionColor }
+                        { color: position != 'inactive' ? positionColor : 'grey' }
                     ]}>{position.toUpperCase()}</Text></Text>
                     <Text style={styles.infoText}>Entry price: <Text style={[
                         styles.infoText,
