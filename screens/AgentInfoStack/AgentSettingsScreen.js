@@ -43,8 +43,7 @@ const AgentSettingsScreen = ({ route, navigation }) => {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View style={styles.modalDescriptionTextWrapper}>
-              <Text style={styles.modalDescriptionText}>
-                 </Text>
+              <Text style={styles.modalDescriptionText}>{position != 'inactive' ? "Setting the agent to inactive will not close the position immediately. The position will only be closed once the agent has completed its current task. Afterward, the agent will no longer be able to be trade." : "Activating the agent will allow it to resume its operations from where it left off previously."}</Text>
             </View>
             <View style={styles.modalButtonWrapper}>
               <TouchableOpacity
@@ -238,7 +237,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     width: '90%',
-    height: '53%',
     alignItems: 'center',
   },
   modalDeleteButton: {
@@ -275,6 +273,7 @@ const styles = StyleSheet.create({
   modalDescriptionTextWrapper: {
     width: '90%',
     alignItems: 'center',
-    marginTop: 20
+    marginTop: 20,
+    marginBottom: '25%'
   }
 })
