@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import React from 'react'
 
@@ -39,6 +39,11 @@ const AgentSettingsScreen = ({ route, navigation }) => {
           />
           <Text style={styles.optionTitleText}>Configure</Text>
         </View>
+        <View style={styles.separatorLine}></View>
+          <TouchableOpacity style={styles.option}>
+            <Text style={styles.optionText}>State of agent</Text>
+            <Text style={[styles.agentState, { color: position != 'inactive' ? '#33ff1c' : 'red' }]}>{position != 'inactive' ? 'ACTIVE' : 'INACTIVE'}</Text>
+          </TouchableOpacity>
       </View>
     </View>
   )
@@ -76,6 +81,31 @@ const styles = StyleSheet.create({
   },
   optionsTitleWrapper: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginBottom: 10
+  },
+  separatorLine: {
+    height: 1,
+    width: '100%',
+    alignSelf: 'center',
+    backgroundColor: 'grey',
+    marginBottom: '2%'
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  optionText: {
+    color: '#919191',
+    fontSize: 24,
+    fontWeight: '300'
+  },
+  agentState: {
+    color: 'white',
+    fontSize: 24,
+    backgroundColor: '#2e2e2e',
+    padding: 5,
+    borderRadius: 15
   }
 })
