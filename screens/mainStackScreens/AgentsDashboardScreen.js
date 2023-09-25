@@ -69,6 +69,7 @@ const AgentsDashboardScreen = ({ navigation }) => {
                   position={item.position}
                   apiKey={item.apiKey}
                   apiSecret={item.apiSecret}
+                  dateOfCreation={item.dateOfCreation}
                 />
               )}
               ListHeaderComponent={<FlatListHeader />}

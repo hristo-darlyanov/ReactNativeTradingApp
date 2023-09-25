@@ -7,7 +7,7 @@ import { LineChart } from 'react-native-wagmi-charts';
 import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
-    const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit } = route.params
+    const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation } = route.params
     const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
     const [chart, setChart] = useState('line')
@@ -200,7 +200,8 @@ const AgentInfoScreen = ({ route, navigation }) => {
                                 name: name,
                                 markPrice: markPrice,
                                 unrealizedProfitPerc: unrealizedProfitPerc,
-                                unrealizedProfit: unrealizedProfit
+                                unrealizedProfit: unrealizedProfit,
+                                dateOfCreation: dateOfCreation
                             })}
                             borderRadius={50}
                             iconStyle={{ marginRight: '5%' }} />
@@ -293,6 +294,10 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Executed quantity</Text>
                             <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? orderData.executedQty : '0'}</Text>
+                        </View>
+                        <View style={[styles.infoWrapper, {marginTop: 30}]}>
+                            <Text style={styles.infoDescriptionText}>Agent created on</Text>
+                            <Text style={styles.infoValueText}>{new Date(dateOfCreation * 1).toLocaleDateString()}</Text>
                         </View>
                     </View>
                 </ScrollView>
