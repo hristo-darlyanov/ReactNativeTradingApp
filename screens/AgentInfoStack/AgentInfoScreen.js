@@ -22,6 +22,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [positionEntryDate, setPositionEntryDate] = useState('')
     const [positionEntryDateNumbersOnly, setPositionEntryDateNumbersOnly] = useState('')
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
+    const profitColor = unrealizedProfit > 0 ? '#33ff1c' : unrealizedProfit < 0 ? 'red' : 'grey'
 
     const formatUSD = value => {
         'worklet';
@@ -103,12 +104,12 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
                 setDotProps({
                     at: indexOfPosition,
-                    color: positionColor,
+                    color: profitColor,
                     size: 6,
                     hasOuterDot: true,
                     outerSize: 12
                 })
-                setLineHighlightProps({ color: positionColor, from: indexOfPosition, to: 30 })
+                setLineHighlightProps({ color: profitColor, from: indexOfPosition, to: 30 })
                 setHorizontalLineProps({ at: { index: indexOfPosition } })
                 const tempLineData = lineData
                 tempLineData[indexOfPosition] = {
@@ -263,11 +264,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
-                            <Text style={[styles.infoValueText, { color: positionColor }]}>{position != 'hold' ? parseFloat(unrealizedProfitPerc).toFixed(2) : '0'}%</Text>
+                            <Text style={[styles.infoValueText, { color: profitColor }]}>{position != 'hold' ? parseFloat(unrealizedProfitPerc).toFixed(2) : '0'}%</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit </Text>
-                            <Text style={[styles.infoValueText, { color: positionColor }]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
+                            <Text style={[styles.infoValueText, { color: profitColor }]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Entry price </Text>
