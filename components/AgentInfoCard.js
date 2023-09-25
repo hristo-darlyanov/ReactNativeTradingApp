@@ -97,7 +97,7 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret }) => {
                         end={{ x: 0.1, y: 0.9 }}
                         locations={[0, 1]}>
                         <View style={styles.percentageIncreaseInfoWrapper}>
-                            <Text style={styles.percentageIncreaseText}>{ position != 'hold' ? parseFloat(profitPercentage).toFixed(2).toString() : '0'}%</Text>
+                            <Text style={styles.percentageIncreaseText}>{ position != 'hold' && profitPercentage != Infinity && profitPercentage != -Infinity ? parseFloat(profitPercentage).toFixed(2).toString() : '0'}%</Text>
                             <IconAntDesign
                                 name={position != 'hold' ? percentageIncreaseImage : 'minus'}
                                 size={20}

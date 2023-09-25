@@ -79,7 +79,6 @@ const AgentSettingsScreen = ({ route, navigation }) => {
       doneClosingPosition = false
       await NewOrderFutures(sAgents.held_quantity, invertedPosition, sAgents.apiKey, sAgents.apiSecret)
         .then((data) => {
-          console.log(data)
           doneClosingPosition = true
         })
     }
