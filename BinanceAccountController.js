@@ -11,7 +11,7 @@ export async function AccountInformationFutures(apiKey = baseConfig.API_KEY, api
     const dataQuery = 'timestamp=' + Date.now()
     const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
-        type: 'GET',
+        method: 'GET',
         headers: {
             'X-MBX-APIKEY': apiKey
         }
@@ -25,7 +25,7 @@ export async function PositionInformationFutures(apiKey = baseConfig.API_KEY, ap
     const dataQuery = 'timestamp=' + Date.now()
     const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
-        type: 'GET',
+        method: 'GET',
         headers: {
             'X-MBX-APIKEY': apiKey
         }
@@ -34,25 +34,39 @@ export async function PositionInformationFutures(apiKey = baseConfig.API_KEY, ap
     return data = await response.json()
 }
 
-export async function GetKlines(symbol = "BTCUSDT", interval= "1d", limit=30) {
+export async function GetKlines(symbol = "BTCUSDT", interval = "1d", limit = 30) {
     const endPoint = '/fapi/v1/markPriceKlines'
     const dataQuery = 'symbol=' + symbol + "&interval=" + interval + "&limit=" + limit
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery, {
-        type: 'GET',
+        method: 'GET',
     })
 
     return data = await response.json()
 }
 
-export async function OrdersInformationFutures(apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, symbol="BTCUSDT") {
+export async function OrdersInformationFutures(apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, symbol = "BTCUSDT") {
     const endPoint = '/fapi/v1/allOrders'
     const dataQuery = 'timestamp=' + Date.now() + "&symbol=" + symbol
     const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
-        type: 'GET',
+        method: 'GET',
         headers: {
             'X-MBX-APIKEY': apiKey
         }
+    })
+
+    return data = await response.json()
+}
+
+export async function NewOrderFutures(quantity, side, apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET) {
+    const endPoint = '/fapi/v1/order'
+    const dataQuery = `timestamp=${Date.now()}&symbol=BTCUSDT&side=${side}&type=MARKET&quantity=${quantity}`
+    const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
+    const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
+        method: 'POST',
+        headers: {
+            'X-MBX-APIKEY': apiKey
+        },
     })
 
     return data = await response.json()

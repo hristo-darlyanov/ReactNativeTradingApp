@@ -132,7 +132,6 @@ const AgentInfoScreen = ({ route, navigation }) => {
                     .then((data) => {
                         const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
                         setOrderData(order)
-                        console.log(order)
                     })
                     .catch(error => {
                         console.log(error)
@@ -260,7 +259,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                         <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Side </Text>
-                            <Text style={[styles.infoValueText, { color: position != 'inactive' ? positionColor : 'grey'}]}>{position.toUpperCase()}</Text>
+                            <Text style={[styles.infoValueText, { color: position != 'inactive' ? positionColor : 'grey' }]}>{position.toUpperCase()}</Text>
                         </View>
                         <View style={styles.infoWrapper}>
                             <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>

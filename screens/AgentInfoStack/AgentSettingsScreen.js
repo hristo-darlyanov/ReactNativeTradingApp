@@ -1,9 +1,10 @@
 import { StyleSheet, Text, TouchableOpacity, View, Modal } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { auth, db } from '../../config/Firebase';
-import { query, collection, where, onSnapshot, updateDoc, doc, deleteField } from 'firebase/firestore';
+import { query, collection, where, onSnapshot, updateDoc, doc, deleteField, deleteDoc } from 'firebase/firestore';
 import React, { useState, useLayoutEffect } from 'react'
 import LeftPointingArrow from '../../components/LeftPointingArrow';
+import { NewOrderFutures } from '../../BinanceAccountController';
 
 const AgentSettingsScreen = ({ route, navigation }) => {
   const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit } = route.params
@@ -11,6 +12,7 @@ const AgentSettingsScreen = ({ route, navigation }) => {
   const [deleteAgentModalVisible, setDeleteAgentModalVisible] = useState(false)
   const [changeAgentStateModalVisible, setChangeAgentStateModalVisible] = useState(false)
   const [agentData, setAgentData] = useState([])
+  const [buttonsDisabled, setButtonsDisabled] = useState(false)
 
   useLayoutEffect(() => {
     const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
@@ -19,6 +21,9 @@ const AgentSettingsScreen = ({ route, navigation }) => {
         associatedUser: item.data().associatedAccountUserId,
         agentName: item.data().associatedAccountName,
         prevPosition: item.data().prevPosition,
+        apiKey: item.data().apiKey,
+        apiSecret: item.data().apiSecret,
+        held_quantity: item.data().held_quantity,
         id: item.id
       })))
     })
@@ -32,23 +37,23 @@ const AgentSettingsScreen = ({ route, navigation }) => {
     sAgents = sAgents.find(x => x.associatedUser == auth.currentUser.uid)
     if (currentPosition != 'inactive') {
       const positionRef = doc(db, 'agents', sAgents.id)
-      await updateDoc(positionRef, {position: 'inactive', prevPosition: position})
-      .then(() => {
-        setCurrentPosition('inactive')
-      })
-      .catch(error => {
-        console.log(error)
-      })
+      await updateDoc(positionRef, { position: 'inactive', prevPosition: position })
+        .then(() => {
+          setCurrentPosition('inactive')
+        })
+        .catch(error => {
+          console.log(error)
+        })
     } else {
       const positionRef = doc(db, 'agents', sAgents.id)
       let p = sAgents.prevPosition
-      await updateDoc(positionRef, {position: sAgents.prevPosition, prevPosition: deleteField()})
-      .then(() => {
-        setCurrentPosition(p)
-      })
-      .catch(error => {
-        console.log(error)
-      })
+      await updateDoc(positionRef, { position: sAgents.prevPosition, prevPosition: deleteField() })
+        .then(() => {
+          setCurrentPosition(p)
+        })
+        .catch(error => {
+          console.log(error)
+        })
     }
   }
 
@@ -56,10 +61,35 @@ const AgentSettingsScreen = ({ route, navigation }) => {
     setDeleteAgentModalVisible(false)
     let sAgents = agentData.filter(x => x.agentName == name)
     sAgents = sAgents.find(x => x.associatedUser == auth.currentUser.uid)
-    // await deleteDoc(doc(db, 'agents', sAgents.id))
-    //   .then(() => {
-    //     navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })
-    //   })
+    let invertedPosition
+    let needsForceClosePosition = true
+    let doneClosingPosition = true
+    if (currentPosition == 'inactive') {
+      invertedPosition = sAgents.prevPosition == 'BUY' ? "SELL" : "BUY"
+    } else if (currentPosition != 'inactive') {
+      if (currentPosition == 'hold') {
+        needsForceClosePosition = false
+      } else {
+        invertedPosition = currentPosition == 'BUY' ? "SELL" : "BUY"
+      }
+    }
+
+    if (needsForceClosePosition) {
+      setButtonsDisabled(true)
+      doneClosingPosition = false
+      await NewOrderFutures(sAgents.held_quantity, invertedPosition, sAgents.apiKey, sAgents.apiSecret)
+        .then((data) => {
+          console.log(data)
+          doneClosingPosition = true
+        })
+    }
+
+    if (doneClosingPosition) {
+      await deleteDoc(doc(db, 'agents', sAgents.id))
+        .then(() => {
+          navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })
+        })
+    }
   }
 
   function ChangeAgentStateModal() {
@@ -169,7 +199,7 @@ const AgentSettingsScreen = ({ route, navigation }) => {
           <Text style={styles.optionTitleText}>Configure</Text>
         </View>
         <View style={styles.separatorLine}></View>
-        <TouchableOpacity style={styles.option} onPress={() => setChangeAgentStateModalVisible(true)}>
+        <TouchableOpacity style={styles.option} onPress={() => setChangeAgentStateModalVisible(true)} disabled={buttonsDisabled}>
           <Text style={styles.optionText}>State of agent</Text>
           <Text style={[styles.agentState, { color: currentPosition != 'inactive' ? '#33ff1c' : 'red' }]}>{currentPosition != 'inactive' ? 'ACTIVE' : 'INACTIVE'}</Text>
         </TouchableOpacity>
@@ -186,7 +216,7 @@ const AgentSettingsScreen = ({ route, navigation }) => {
           <Text style={styles.optionTitleText}>Danger zone</Text>
         </View>
         <View style={styles.separatorLine}></View>
-        <TouchableOpacity style={styles.option} onPress={() => setDeleteAgentModalVisible(true)}>
+        <TouchableOpacity style={styles.option} onPress={() => setDeleteAgentModalVisible(true)} disabled={buttonsDisabled}>
           <Text style={styles.optionText}>Delete agent</Text>
           <LeftPointingArrow />
         </TouchableOpacity>
