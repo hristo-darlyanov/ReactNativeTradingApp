@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         alignSelf: 'flex-start',
         marginLeft: '5%',
-        marginTop: '20%',
+        marginTop: '15%',
         marginBottom: '5%'
     },
     separatorLine: {

@@ -131,6 +131,25 @@ const StatisticsScreen = () => {
       <View style={styles.container}>
         <Text style={styles.titleWrapper}>Agents statistics</Text>
         <View style={styles.chartWrapper}>
+          <View style={styles.profitWrapper}>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={styles.profitText}>Profit - </Text>
+              <LineChart.PriceText
+                format={({ value }) => {
+                  'worklet';
+                  const formattedPrice = formatUSD(value);
+                  return `${formattedPrice}`;
+                }}
+                style={{ fontSize: 26, color: 'white' }}
+              />
+              <Text style={{ color: 'grey', fontSize: 18, textAlign: 'left' }}>USDT</Text>
+            </View>
+            <View style={{ marginRight: 10, marginLeft: 5, alignItems: 'flex-end' }}>
+              <Text style={{ fontSize: 20, color: 'white' }}>BTCUSDT</Text>
+              <Text style={{ color: 'grey' }}>Perpetual</Text>
+            </View>
+          </View>
+          <View style={styles.separatorLine}></View>
           <LineChart height={200}>
             <LineChart.Path color='white' >
               <LineChart.Highlight color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'gray'} />
@@ -181,18 +200,6 @@ const StatisticsScreen = () => {
               />
             )}
           />
-          <View style={styles.profitWrapper}>
-            <Text style={styles.profitText}>Profit - </Text>
-            <LineChart.PriceText
-              format={({ value }) => {
-                'worklet';
-                const formattedPrice = formatUSD(value);
-                return `${formattedPrice}`;
-              }}
-              style={{ fontSize: 26, color: 'white' }}
-            />
-            <Text style={{ color: 'grey', fontSize: 18, textAlign: 'left' }}>USDT</Text>
-          </View>
         </View>
       </View>
     </LineChart.Provider>
@@ -270,6 +277,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   profitWrapper: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   }
 })
