@@ -16,6 +16,16 @@ const StatisticsScreen = () => {
   const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
   const [profit, setProfit] = useState('0')
 
+  const formatUSD = value => {
+    'worklet';
+    if (value === '') {
+      return `${profit.toFixed(2)}`
+    }
+
+    const formattedValue = `${parseFloat(value).toFixed(2)}`
+    return `${formattedValue}`
+  }
+
   const formatDate = value => {
     'worklet'
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -84,7 +94,7 @@ const StatisticsScreen = () => {
           tradesData.forEach(item => {
             const realizedProfit = Object.values(item).map(x => ({
               timestamp: x.time,
-              value: x.realizedPnl
+              value: parseFloat(x.realizedPnl)
             }))
             realizedProfit.forEach(item => {
               profit += parseFloat(item.value)
@@ -99,7 +109,7 @@ const StatisticsScreen = () => {
             if (agentName == value.name) {
               const realizedProfit = Object.values(item).map(x => ({
                 timestamp: x.time,
-                value: x.realizedPnl
+                value: parseFloat(x.realizedPnl)
               }))
               realizedProfit.forEach(item => {
                 profit += parseFloat(item.value)
@@ -168,7 +178,18 @@ const StatisticsScreen = () => {
               />
             )}
           />
-          <Text style={styles.profitText}>Profit - {profit}</Text>
+          <View style={styles.profitWrapper}>
+            <Text style={styles.profitText}>Profit - </Text>
+            <LineChart.PriceText
+              format={({ value }) => {
+                'worklet';
+                const formattedPrice = formatUSD(value);
+                return `${formattedPrice}`;
+              }}
+              style={{ fontSize: 26, color: 'white' }}
+            />
+            <Text style={{ color: 'grey', fontSize: 18, textAlign: 'left' }}>USDT</Text>
+          </View>
         </View>
       </View>
     </LineChart.Provider>
@@ -212,7 +233,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
-    width: '50%'
+    width: '40%'
   },
   icon: {
     marginRight: 5,
@@ -245,4 +266,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     alignSelf: 'center',
   },
+  profitWrapper: {
+    flexDirection: 'row'
+  }
 })
