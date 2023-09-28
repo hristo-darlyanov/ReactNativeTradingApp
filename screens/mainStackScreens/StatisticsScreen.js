@@ -14,7 +14,7 @@ const StatisticsScreen = () => {
   const [value, setValue] = useState("all");
   const [isFocus, setIsFocus] = useState(false);
   const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
-  const [profit, setProfit] = useState('0')
+  const [profit, setProfit] = useState(0)
 
   const formatUSD = value => {
     'worklet';
@@ -132,7 +132,10 @@ const StatisticsScreen = () => {
         <Text style={styles.titleWrapper}>Agents statistics</Text>
         <View style={styles.chartWrapper}>
           <LineChart height={200}>
-            <LineChart.Path color='white' />
+            <LineChart.Path color='white' >
+              <LineChart.Highlight color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'gray'} />
+              <LineChart.Gradient color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'gray'} />
+            </LineChart.Path>
             <LineChart.CursorLine />
           </LineChart>
           <View style={styles.separatorLine}></View>
