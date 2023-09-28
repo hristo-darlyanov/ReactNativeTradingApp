@@ -6,6 +6,8 @@ import { auth, db } from '../../config/Firebase';
 import { query, collection, where, onSnapshot } from 'firebase/firestore';
 import { Dropdown } from 'react-native-element-dropdown';
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
+import { FlatList } from 'react-native-gesture-handler';
+import TradeInfoCard from '../../components/TradeInfoCard';
 
 const StatisticsScreen = () => {
   const [tradesData, setTradesData] = useState([])
@@ -15,6 +17,7 @@ const StatisticsScreen = () => {
   const [isFocus, setIsFocus] = useState(false);
   const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
   const [profit, setProfit] = useState(0)
+  const [currentlySelectedTrades, setCurrentlySelectedTrades] = useState([])
 
   const formatUSD = value => {
     'worklet';
@@ -89,18 +92,33 @@ const StatisticsScreen = () => {
     function ChangeData() {
       let profit = 0
       let tempTrades = []
+      let fullDataSet = []
+      let index = 0
       if (tradesData.length != 0) {
         if (value == 'all') {
           tradesData.forEach(item => {
+            const agentName = Object.keys(item)[0]
             const realizedProfit = Object.values(item).map(x => ({
               timestamp: x.time,
               value: parseFloat(x.realizedPnl)
             }))
+            const fullData = Object.values(item).map(x => ({
+              timestamp: x.time,
+              profit: parseFloat(x.realizedPnl),
+              side: x.side,
+              quanitity: x.qty,
+              symbol: x.symbol,
+              agentName: agentName,
+              randomId: index
+            }))
             realizedProfit.forEach(item => {
               profit += parseFloat(item.value)
               tempTrades.push(item)
+              fullDataSet.push(fullData[0])
             })
+            index += 1
           })
+          setCurrentlySelectedTrades(fullDataSet)
           setLineData(tempTrades)
           setProfit(profit)
         } else {
@@ -111,12 +129,24 @@ const StatisticsScreen = () => {
                 timestamp: x.time,
                 value: parseFloat(x.realizedPnl)
               }))
+              const fullData = Object.values(item).map(x => ({
+                timestamp: x.time,
+                profit: parseFloat(x.realizedPnl),
+                side: x.side,
+                quanitity: x.qty,
+                symbol: x.symbol,
+                agentName: agentName,
+                randomId: index
+              }))
               realizedProfit.forEach(item => {
                 profit += parseFloat(item.value)
                 tempTrades.push(item)
+                fullDataSet.push(fullData[0])
               })
+              index += 1
             }
           })
+          setCurrentlySelectedTrades(fullDataSet)
           setLineData(tempTrades)
           setProfit(profit)
         }
@@ -132,7 +162,7 @@ const StatisticsScreen = () => {
         <Text style={styles.titleWrapper}>Agents statistics</Text>
         <View style={styles.chartWrapper}>
           <View style={styles.profitWrapper}>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <Text style={styles.profitText}>Profit - </Text>
               <LineChart.PriceText
                 format={({ value }) => {
@@ -201,6 +231,21 @@ const StatisticsScreen = () => {
             )}
           />
         </View>
+        <FlatList
+        style={{width: '95%', alignSelf: 'center', marginTop: '5%'}}
+          keyExtractor={(item) => item.randomId}
+          data={currentlySelectedTrades}
+          renderItem={({ item }) => (
+            <TradeInfoCard
+              timestamp={item.time}
+              profit={item.realizedPnl}
+              side={item.side}
+              quanitity={item.qty}
+              symbol={item.symbol}
+              agentName={item.agentName}
+            />
+          )}
+        />
       </View>
     </LineChart.Provider>
   )
@@ -243,7 +288,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
-    width: '40%'
+    width: '95%',
   },
   icon: {
     marginRight: 5,
@@ -261,10 +306,10 @@ const styles = StyleSheet.create({
     height: 20,
   },
   dropdownWrapper: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: '2%',
-    marginTop: '2%'
+    marginTop: '2%',
+    width: '100%',
+    alignItems: 'center'
   },
   dateInfo: {
     width: '100%',
