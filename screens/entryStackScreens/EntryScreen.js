@@ -7,7 +7,7 @@ const EntryScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.titleWrapper}>
-                <Text style={styles.titleText}>aissac trade</Text>
+                <Text style={styles.titleText}>icaka trading</Text>
             </View>
             <View style={styles.chart}>
                 <LineChart.Provider data={data}>

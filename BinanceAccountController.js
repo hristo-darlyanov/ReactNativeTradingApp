@@ -71,3 +71,17 @@ export async function NewOrderFutures(quantity, side, apiKey = baseConfig.API_KE
 
     return data = await response.json()
 }
+
+export async function TradesInformationFutures(startTime, apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, symbol="BTCUSDT") {
+    const endPoint = '/fapi/v1/userTrades'
+    const dataQuery = 'timestamp=' + Date.now() + "&symbol=" + symbol + "&startTime=" + startTime
+    const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
+    const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
+        method: 'GET',
+        headers: {
+            'X-MBX-APIKEY': apiKey
+        }
+    })
+
+    return data = await response.json()
+}
