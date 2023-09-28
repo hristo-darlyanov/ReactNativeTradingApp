@@ -16,6 +16,18 @@ const StatisticsScreen = () => {
   const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
   const [profit, setProfit] = useState('0')
 
+  const formatDate = value => {
+    'worklet'
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    if (value == '-1') {
+      return 'Scroll for date'
+    }
+
+    const tempDate = new Date(value)
+    const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
+    return date
+  }
+
   useLayoutEffect(() => {
     let itemsData = []
     const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
@@ -113,6 +125,16 @@ const StatisticsScreen = () => {
             <LineChart.Path color='white' />
             <LineChart.CursorLine />
           </LineChart>
+          <View style={styles.separatorLine}></View>
+          <View style={styles.dateInfo}>
+            <LineChart.DatetimeText
+              format={({ value }) => {
+                'worklet';
+                const formattedDate = formatDate(value);
+                return formattedDate;
+              }}
+              style={styles.formattedDate} />
+          </View>
         </View>
         <View style={styles.dropdownWrapper}>
           <Dropdown
@@ -212,5 +234,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: '2%',
     marginTop: '2%'
-  }
+  },
+  dateInfo: {
+    width: '100%',
+    height: 30
+  },
+  formattedDate: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '400',
+    alignSelf: 'center',
+  },
 })
