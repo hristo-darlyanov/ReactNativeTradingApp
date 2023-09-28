@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 3,
         borderColor: '#1e1e1e',
-        marginBottom: 10,
+        marginTop: 10,
     },
     symbolText: {
         fontSize: 20,

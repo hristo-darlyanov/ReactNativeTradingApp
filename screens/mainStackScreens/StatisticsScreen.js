@@ -231,7 +231,7 @@ const StatisticsScreen = () => {
             )}
           />
         </View>
-        <View style={[styles.separatorLine, { marginTop: 10, marginBottom: 10, width: '97%', alignSelf: 'center' }]}></View>
+        <View style={[styles.separatorLine, { marginTop: 10, width: '97%', alignSelf: 'center' }]}></View>
         <FlatList
           style={{ width: '95%', alignSelf: 'center'}}
           keyExtractor={(item) => item.randomId}
