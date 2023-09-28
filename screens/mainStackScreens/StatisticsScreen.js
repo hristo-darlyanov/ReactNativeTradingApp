@@ -106,7 +106,7 @@ const StatisticsScreen = () => {
               timestamp: x.time,
               profit: parseFloat(x.realizedPnl),
               side: x.side,
-              quanitity: x.qty,
+              quantity: x.qty,
               symbol: x.symbol,
               agentName: agentName,
               randomId: index
@@ -133,7 +133,7 @@ const StatisticsScreen = () => {
                 timestamp: x.time,
                 profit: parseFloat(x.realizedPnl),
                 side: x.side,
-                quanitity: x.qty,
+                quantity: x.qty,
                 symbol: x.symbol,
                 agentName: agentName,
                 randomId: index
@@ -182,8 +182,8 @@ const StatisticsScreen = () => {
           <View style={styles.separatorLine}></View>
           <LineChart height={200}>
             <LineChart.Path color='white' >
-              <LineChart.Highlight color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'gray'} />
-              <LineChart.Gradient color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'gray'} />
+              <LineChart.Highlight color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'grey'} />
+              <LineChart.Gradient color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'grey'} />
             </LineChart.Path>
             <LineChart.CursorLine />
           </LineChart>
@@ -231,16 +231,17 @@ const StatisticsScreen = () => {
             )}
           />
         </View>
+        <View style={[styles.separatorLine, { marginTop: 10, marginBottom: 10, width: '97%', alignSelf: 'center' }]}></View>
         <FlatList
-        style={{width: '95%', alignSelf: 'center', marginTop: '5%'}}
+          style={{ width: '95%', alignSelf: 'center'}}
           keyExtractor={(item) => item.randomId}
           data={currentlySelectedTrades}
           renderItem={({ item }) => (
             <TradeInfoCard
-              timestamp={item.time}
-              profit={item.realizedPnl}
+              timestamp={item.timestamp}
+              profit={item.profit}
               side={item.side}
-              quanitity={item.qty}
+              quantity={item.quantity}
               symbol={item.symbol}
               agentName={item.agentName}
             />
