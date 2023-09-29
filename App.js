@@ -181,7 +181,7 @@ function RootNavigation() {
   }, [user])
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black'}}>
         <ActivityIndicator size="large" />
       </View>
     )
