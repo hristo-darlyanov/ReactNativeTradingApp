@@ -131,8 +131,9 @@ const AgentInfoScreen = ({ route, navigation }) => {
             if (position != 'hold') {
                 await OrdersInformationFutures(apiKey, apiSecret)
                     .then((data) => {
-                        const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
-                        setOrderData(order)
+                        console.log(data)
+                        //const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
+                        //setOrderData(order)
                     })
                     .catch(error => {
                         console.log(error)

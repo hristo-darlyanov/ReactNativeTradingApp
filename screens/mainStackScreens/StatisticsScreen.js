@@ -24,7 +24,6 @@ const StatisticsScreen = () => {
     if (value === '') {
       return `${profit.toFixed(2)}`
     }
-
     const formattedValue = `${parseFloat(value).toFixed(2)}`
     return `${formattedValue}`
   }
@@ -164,14 +163,14 @@ const StatisticsScreen = () => {
           <View style={styles.profitWrapper}>
             <View style={{ flexDirection: 'row' }}>
               <Text style={styles.profitText}>Profit - </Text>
-              <LineChart.PriceText
+              {tradesData.length != 0 ? <LineChart.PriceText
                 format={({ value }) => {
                   'worklet';
                   const formattedPrice = formatUSD(value);
                   return `${formattedPrice}`;
                 }}
                 style={{ fontSize: 26, color: 'white' }}
-              />
+              /> : <Text style={{fontSize: 26, color: 'white'}}>0.00</Text>}
               <Text style={{ color: 'grey', fontSize: 18, textAlign: 'left' }}>USDT</Text>
             </View>
             <View style={{ marginRight: 10, marginLeft: 5, alignItems: 'flex-end' }}>
@@ -189,13 +188,13 @@ const StatisticsScreen = () => {
           </LineChart>
           <View style={styles.separatorLine}></View>
           <View style={styles.dateInfo}>
-            <LineChart.DatetimeText
+            {tradesData.length != 0 ?<LineChart.DatetimeText
               format={({ value }) => {
                 'worklet';
                 const formattedDate = formatDate(value);
                 return formattedDate;
               }}
-              style={styles.formattedDate} />
+              style={styles.formattedDate} /> : <Text style={styles.formattedDate}>No trades</Text>}
           </View>
         </View>
         <View style={styles.dropdownWrapper}>
