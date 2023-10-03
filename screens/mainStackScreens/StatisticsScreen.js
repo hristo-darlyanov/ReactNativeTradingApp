@@ -77,7 +77,9 @@ const StatisticsScreen = () => {
           .then((data) => {
             let trades = []
             data.forEach(trade => {
-              trades.push({ [item.label]: trade })
+              if (parseFloat(trade.realizedPnl) > 0) {
+                trades.push({ [item.label]: trade })
+              }
             })
             setTradesData(trades)
           })
