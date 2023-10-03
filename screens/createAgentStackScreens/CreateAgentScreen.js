@@ -5,7 +5,7 @@ import { db, auth } from '../../config/Firebase'
 import { AccountInformationFutures } from '../../BinanceAccountController';
 import { query, onSnapshot, collection, addDoc, where } from 'firebase/firestore';
 import React, { useRef, useContext, useState, useLayoutEffect } from 'react'
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import LinkedAccountInfoCard from '../../components/LinkedAccountInfoCard';
 
 const binanceIcon = require('../../assets/exchange-logos/Binance_Icon.png')
@@ -254,7 +254,7 @@ const CreateAgentScreen = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <AccountOptionsModal />
             <ConfirmCreatingAgentModal />
             <Animated.View
@@ -311,7 +311,7 @@ const CreateAgentScreen = () => {
             <TouchableOpacity style={styles.openModalButton} onPress={handleConfirmation}>
                 <Text style={styles.openModalButtonText}>Create agent</Text>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
         width: '85%',
         backgroundColor: 'white',
         borderRadius: 10,
-        marginTop: '15%',
+        marginTop: '5%',
         paddingVertical: 10
     },
     openModalButtonText: {
