@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const binanceIcon = require('../assets/exchange-logos/Binance_Icon.png')
 
-const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret, dateOfCreation }) => {
+const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret, dateOfCreation, currentOrderId }) => {
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? 'green' : 'red'
     const entryPriceColor = position == 'hold' ? 'grey' : 'white'
     const image = exchange == 'binance' ? binanceIcon : null
@@ -67,7 +67,8 @@ const AgentInfoCard = ({ name, exchange, position, apiKey, apiSecret, dateOfCrea
                             unrealizedProfitPerc: profitPercentage,
                             unrealizedProfit: positionData.unRealizedProfit,
                             markPrice: positionData.markPrice,
-                            dateOfCreation: dateOfCreation
+                            dateOfCreation: dateOfCreation,
+                            currentOrderId: currentOrderId
                         }
                     })
                 }

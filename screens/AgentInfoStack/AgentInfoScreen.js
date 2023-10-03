@@ -7,7 +7,7 @@ import { LineChart } from 'react-native-wagmi-charts';
 import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
-    const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation } = route.params
+    const { entryPrice, currentOrderId, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation } = route.params
     const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
     const [chart, setChart] = useState('line')
@@ -129,11 +129,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
     useLayoutEffect(() => {
         async function GetOrdersData() {
             if (position != 'hold') {
-                await OrdersInformationFutures(apiKey, apiSecret)
+                await OrdersInformationFutures(apiKey, apiSecret, currentOrderId)
                     .then((data) => {
                         console.log(data)
-                        //const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
-                        //setOrderData(order)
+                        const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
+                        setOrderData(order)
                     })
                     .catch(error => {
                         console.log(error)

@@ -44,9 +44,9 @@ export async function GetKlines(symbol = "BTCUSDT", interval = "1d", limit = 30)
     return data = await response.json()
 }
 
-export async function OrdersInformationFutures(apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, symbol = "BTCUSDT") {
+export async function OrdersInformationFutures(apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, orderId, symbol = "BTCUSDT") {
     const endPoint = '/fapi/v1/allOrders'
-    const dataQuery = 'timestamp=' + Date.now() + "&symbol=" + symbol
+    const dataQuery = 'timestamp=' + Date.now() + "&symbol=" + symbol + "&orderId=" + orderId
     const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
         method: 'GET',

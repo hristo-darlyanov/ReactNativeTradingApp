@@ -23,6 +23,7 @@ const AgentsDashboardScreen = ({ navigation }) => {
         dateOfCreation: item.data().dateOfCreation,
         exchange: item.data().exchange,
         position: item.data().position,
+        currentOrderId: item.data().currentOrderId,
         id: item.id
       })))
     })
@@ -70,6 +71,7 @@ const AgentsDashboardScreen = ({ navigation }) => {
                   apiKey={item.apiKey}
                   apiSecret={item.apiSecret}
                   dateOfCreation={item.dateOfCreation}
+                  currentOrderId={item.currentOrderId}
                 />
               )}
               ListHeaderComponent={<FlatListHeader />}
