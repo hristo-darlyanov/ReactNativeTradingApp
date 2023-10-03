@@ -99,7 +99,7 @@ const StatisticsScreen = () => {
             const agentName = Object.keys(item)[0]
             const realizedProfit = Object.values(item).map(x => ({
               timestamp: x.time,
-              value: parseFloat(x.realizedPnl)
+              value: profit + parseFloat(x.realizedPnl)
             }))
             const fullData = Object.values(item).map(x => ({
               timestamp: x.time,
@@ -126,7 +126,7 @@ const StatisticsScreen = () => {
             if (agentName == value.name) {
               const realizedProfit = Object.values(item).map(x => ({
                 timestamp: x.time,
-                value: parseFloat(x.realizedPnl)
+                value: profit + parseFloat(x.realizedPnl)
               }))
               const fullData = Object.values(item).map(x => ({
                 timestamp: x.time,
