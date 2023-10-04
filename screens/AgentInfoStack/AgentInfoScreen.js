@@ -19,7 +19,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'white' })
     const [dotProps, setDotProps] = useState({})
     const [orderData, setOrderData] = useState({})
-    const [positionEntryDate, setPositionEntryDate] = useState('')
+    const [positionEntryDate, setCurrentDate] = useState('')
     const [positionEntryDateNumbersOnly, setPositionEntryDateNumbersOnly] = useState('')
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
     const profitColor = unrealizedProfit > 0 ? '#33ff1c' : unrealizedProfit < 0 ? 'red' : 'grey'
@@ -49,7 +49,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
         }
 
         const tempDate = new Date(value)
-        const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
+        const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}   ( ${tempDate.getHours()}h )`
         return date
     }
 
@@ -101,7 +101,8 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 lineDataConvertedTimes.push(new Date(lineData[index].timestamp))
             }
             if (position != 'hold') {
-                const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
+                const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate() && x.getHours() + 4 > positionConvertedTimestamp.getHours())
+                console.log(positionConvertedTimestamp.get)
                 setDotProps({
                     at: indexOfPosition,
                     color: profitColor,
@@ -117,10 +118,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
                     timestamp: orderData.time
                 }
                 setLineData(tempLineData)
-                const tempDate = new Date(lineData[lineData.length - 1].timestamp)
-                const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
-                const cleanDate = `${tempDate.getDate()} | ${tempDate.getMonth()} | ${tempDate.getFullYear()}`
-                setPositionEntryDate(date)
+                const tempDate = new Date(orderData.time)
+                const currentDate = new Date(Date.now())
+                const date = `${currentDate.getDate()} | ${months[currentDate.getMonth()]} | ${currentDate.getFullYear()}   ( ${currentDate.getHours()}h )`
+                const cleanDate = `${tempDate.getDate()} | ${tempDate.getMonth()} | ${tempDate.getFullYear()}   ( ${tempDate.getHours()}h )`
+                setCurrentDate(date)
                 setPositionEntryDateNumbersOnly(cleanDate)
             }
         }
@@ -131,7 +133,6 @@ const AgentInfoScreen = ({ route, navigation }) => {
             if (position != 'hold') {
                 await OrdersInformationFutures(apiKey, apiSecret, currentOrderId)
                     .then((data) => {
-                        console.log(data)
                         const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
                         setOrderData(order)
                     })
