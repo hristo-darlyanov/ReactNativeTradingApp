@@ -16,13 +16,16 @@ const StatisticsScreen = () => {
   const [value, setValue] = useState("all");
   const [isFocus, setIsFocus] = useState(false);
   const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
-  const [profit, setProfit] = useState(0)
+  const [profit, setProfit] = useState([])
   const [currentlySelectedTrades, setCurrentlySelectedTrades] = useState([])
 
   const formatUSD = value => {
     'worklet';
     if (value === '') {
-      return `${profit.toFixed(2)}`
+      if (profit.length == 0) {
+        return '0'
+      }
+      return `${profit[profit.length - 1].toFixed(2)}`
     }
     const formattedValue = `${parseFloat(value).toFixed(2)}`
     return `${formattedValue}`
@@ -52,6 +55,7 @@ const StatisticsScreen = () => {
         dateOfCreation: item.data().dateOfCreation,
         exchange: item.data().exchange,
         position: item.data().position,
+        firstOrderId: item.data().firstOrderId,
         id: item.id
       }))
 
@@ -63,9 +67,9 @@ const StatisticsScreen = () => {
           name: x.agentName,
           apiKey: x.apiKey,
           apiSecret: x.apiSecret,
-          dateCreated: x.dateOfCreation
         }
       }))
+
       dropdownResult.splice(0, 0, { label: 'All agents', value: 'all' })
       setDropdownData(dropdownResult)
 
@@ -73,11 +77,11 @@ const StatisticsScreen = () => {
         if (item.label == 'All agents') {
           return
         }
-        TradesInformationFutures(item.value.dateCreated, item.value.apiKey, item.value.apiSecret,)
+        TradesInformationFutures(item.value.apiKey, item.value.apiSecret,)
           .then((data) => {
             let trades = []
             data.forEach(trade => {
-              if (parseFloat(trade.realizedPnl) > 0) {
+              if (parseFloat(trade.income) > 0) {
                 trades.push({ [item.label]: trade })
               }
             })
@@ -91,8 +95,16 @@ const StatisticsScreen = () => {
 
   useLayoutEffect(() => {
     function ChangeData() {
-      let profit = 0
+      let profit = []
+      profit.push(0)
       let tempTrades = []
+      if (tradesData.length != 0) {
+        tempTrades.push({
+          timestamp: agentData.reduce(function (prev, curr) {
+            return prev.dateOfCreation < curr.dateOfCreationt ? prev : curr;
+          }).dateOfCreation, value: 0
+        })
+      }
       let fullDataSet = []
       let index = 0
       if (tradesData.length != 0) {
@@ -100,20 +112,19 @@ const StatisticsScreen = () => {
           tradesData.forEach(item => {
             const agentName = Object.keys(item)[0]
             const realizedProfit = Object.values(item).map(x => ({
+              temp: profit.push(profit[profit.length - 1] + parseFloat(x.income)),
               timestamp: x.time,
-              value: profit + parseFloat(x.realizedPnl)
+              value: profit[profit.length - 1]
             }))
             const fullData = Object.values(item).map(x => ({
               timestamp: x.time,
-              profit: parseFloat(x.realizedPnl),
-              side: x.side,
-              quantity: x.qty,
+              profit: parseFloat(x.income),
               symbol: x.symbol,
               agentName: agentName,
               randomId: index
             }))
             realizedProfit.forEach(item => {
-              profit += parseFloat(item.value)
+              profit.push(profit[profit.length - 1])
               tempTrades.push(item)
               fullDataSet.push(fullData[0])
             })
@@ -127,12 +138,13 @@ const StatisticsScreen = () => {
             const agentName = Object.keys(item)[0]
             if (agentName == value.name) {
               const realizedProfit = Object.values(item).map(x => ({
+                temp: profit.push(profit[profit.length - 1] + parseFloat(x.income)),
                 timestamp: x.time,
-                value: profit + parseFloat(x.realizedPnl)
+                value: profit[profit.length - 1]
               }))
               const fullData = Object.values(item).map(x => ({
                 timestamp: x.time,
-                profit: parseFloat(x.realizedPnl),
+                profit: parseFloat(x.income),
                 side: x.side,
                 quantity: x.qty,
                 symbol: x.symbol,
@@ -140,7 +152,7 @@ const StatisticsScreen = () => {
                 randomId: index
               }))
               realizedProfit.forEach(item => {
-                profit += parseFloat(item.value)
+                profit.push(profit[profit.length - 1])
                 tempTrades.push(item)
                 fullDataSet.push(fullData[0])
               })
@@ -172,7 +184,7 @@ const StatisticsScreen = () => {
                   return `${formattedPrice}`;
                 }}
                 style={{ fontSize: 26, color: 'white' }}
-              /> : <Text style={{fontSize: 26, color: 'white'}}>0.00</Text>}
+              /> : <Text style={{ fontSize: 26, color: 'white' }}>0.00</Text>}
               <Text style={{ color: 'grey', fontSize: 18, textAlign: 'left' }}>USDT</Text>
             </View>
             <View style={{ marginRight: 10, marginLeft: 5, alignItems: 'flex-end' }}>
@@ -183,14 +195,14 @@ const StatisticsScreen = () => {
           <View style={styles.separatorLine}></View>
           <LineChart height={200}>
             <LineChart.Path color='white' >
-              <LineChart.Highlight color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'grey'} />
-              <LineChart.Gradient color={profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'grey'} />
+              <LineChart.Highlight color={profit[profit.length - 1] > 0 ? '#33ff1c' : profit[profit.length - 1] < 0 ? 'red' : 'grey'} />
+              <LineChart.Gradient color={profit[profit.length - 1] > 0 ? '#33ff1c' : profit[profit.length - 1] < 0 ? 'red' : 'grey'} />
             </LineChart.Path>
             <LineChart.CursorLine />
           </LineChart>
           <View style={styles.separatorLine}></View>
           <View style={styles.dateInfo}>
-            {tradesData.length != 0 ?<LineChart.DatetimeText
+            {tradesData.length != 0 ? <LineChart.DatetimeText
               format={({ value }) => {
                 'worklet';
                 const formattedDate = formatDate(value);
@@ -234,7 +246,7 @@ const StatisticsScreen = () => {
         </View>
         <View style={[styles.separatorLine, { marginTop: 10, width: '97%', alignSelf: 'center' }]}></View>
         <FlatList
-          style={{ width: '95%', alignSelf: 'center'}}
+          style={{ width: '95%', alignSelf: 'center' }}
           keyExtractor={(item) => item.randomId}
           data={currentlySelectedTrades}
           renderItem={({ item }) => (

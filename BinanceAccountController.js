@@ -34,7 +34,7 @@ export async function PositionInformationFutures(apiKey = baseConfig.API_KEY, ap
     return data = await response.json()
 }
 
-export async function GetKlines(symbol = "BTCUSDT", interval = "4h", limit = 120) {
+export async function GetKlines(symbol = "BTCUSDT", interval = "4h", limit = 180) {
     const endPoint = '/fapi/v1/markPriceKlines'
     const dataQuery = 'symbol=' + symbol + "&interval=" + interval + "&limit=" + limit
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery, {
@@ -72,9 +72,9 @@ export async function NewOrderFutures(quantity, side, apiKey = baseConfig.API_KE
     return data = await response.json()
 }
 
-export async function TradesInformationFutures(startTime, apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, symbol="BTCUSDT") {
-    const endPoint = '/fapi/v1/userTrades'
-    const dataQuery = 'timestamp=' + Date.now() + "&symbol=" + symbol + "&startTime=" + startTime
+export async function TradesInformationFutures(apiKey = baseConfig.API_KEY, apiSecret = baseConfig.API_SECRET, symbol="BTCUSDT") {
+    const endPoint = '/fapi/v1/income'
+    const dataQuery = 'timestamp=' + Date.now() + "&symbol=" + symbol + "&limit=" + 1000 + "&incomeType=REALIZED_PNL"
     const signedHashKey = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(dataQuery, apiSecret))
     const response = await fetch(baseConfig.HOST_URL + endPoint + "?" + dataQuery + "&signature=" + signedHashKey, {
         method: 'GET',

@@ -98,6 +98,11 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 } else if (chart == 'oneDay') {
                     indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
                 }
+
+                if (indexOfPosition == -1) {
+                    indexOfPosition = 0
+                }
+
                 setDotProps({
                     at: indexOfPosition,
                     color: profitColor,

@@ -17,10 +17,6 @@ const TradeInfoCard = ({ timestamp, profit, side, quantity, symbol, agentName })
                         <Text style={styles.timestampText}>{new Date(timestamp).toLocaleDateString()}</Text>
                     </View>
                     <View>
-                        <Text style={{ fontSize: 20, color: 'grey' }}>Side: <Text style={{ fontSize: 20, color: side == 'SELL' ? 'red' : 'green' }}>{side}</Text></Text>
-                        <Text style={{ fontSize: 20, color: 'grey' }}>qty: <Text style={{ fontSize: 20, color: 'white' }}>{quantity}</Text></Text>
-                    </View>
-                    <View>
                         <Text style={{ fontSize: 20, color: 'grey' }}>Agent name: <Text style={{ fontSize: 20, color: 'white' }}>{agentName}</Text></Text>
                         <Text style={{ fontSize: 20, color: 'grey' }}>Profit: <Text style={{ fontSize: 20, color: profit > 0 ? '#33ff1c' : profit < 0 ? 'red' : 'grey' }}>${profit.toFixed(2)}</Text></Text>
                     </View>
