@@ -77,11 +77,11 @@ const StatisticsScreen = () => {
         if (item.label == 'All agents') {
           return
         }
-        TradesInformationFutures(item.value.apiKey, item.value.apiSecret,)
+        TradesInformationFutures(item.value.apiKey, item.value.apiSecret)
           .then((data) => {
             let trades = []
             data.forEach(trade => {
-              if (parseFloat(trade.income) > 0) {
+              if (parseFloat(trade.income) != 0) {
                 trades.push({ [item.label]: trade })
               }
             })
@@ -176,7 +176,7 @@ const StatisticsScreen = () => {
         <View style={styles.chartWrapper}>
           <View style={styles.profitWrapper}>
             <View style={{ flexDirection: 'row' }}>
-              <Text style={styles.profitText}>Profit - </Text>
+              <Text style={styles.profitText}>Profit </Text>
               {tradesData.length != 0 ? <LineChart.PriceText
                 format={({ value }) => {
                   'worklet';
