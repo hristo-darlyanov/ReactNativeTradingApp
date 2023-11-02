@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, ScrollView } from 'react-native'
 import { LineChart } from 'react-native-wagmi-charts';
 import React, { useLayoutEffect, useState } from 'react'
 import { TradesInformationFutures } from '../../BinanceAccountController';
@@ -67,6 +67,7 @@ const StatisticsScreen = () => {
           name: x.agentName,
           apiKey: x.apiKey,
           apiSecret: x.apiSecret,
+          dateOfCreation: x.dateOfCreation
         }
       }))
 
@@ -77,7 +78,7 @@ const StatisticsScreen = () => {
         if (item.label == 'All agents') {
           return
         }
-        TradesInformationFutures(item.value.apiKey, item.value.apiSecret)
+        TradesInformationFutures(item.value.dateOfCreation, item.value.apiKey, item.value.apiSecret)
           .then((data) => {
             let trades = []
             data.forEach(trade => {
@@ -169,9 +170,9 @@ const StatisticsScreen = () => {
     ChangeData()
   }, [tradesData, value])
 
-  return (
-    <LineChart.Provider data={lineData}>
-      <View style={styles.container}>
+  function FlatListHeader() {
+    return (
+      <>
         <Text style={styles.titleWrapper}>Agents statistics</Text>
         <View style={styles.chartWrapper}>
           <View style={styles.profitWrapper}>
@@ -245,6 +246,13 @@ const StatisticsScreen = () => {
           />
         </View>
         <View style={[styles.separatorLine, { marginTop: 10, width: '97%', alignSelf: 'center' }]}></View>
+      </>
+    )
+  }
+
+  return (
+    <View style={styles.container}>
+      <LineChart.Provider data={lineData}>
         <FlatList
           style={{ width: '95%', alignSelf: 'center' }}
           keyExtractor={(item) => item.randomId}
@@ -259,9 +267,9 @@ const StatisticsScreen = () => {
               agentName={item.agentName}
             />
           )}
-        />
-      </View>
-    </LineChart.Provider>
+          ListHeaderComponent={FlatListHeader} />
+      </LineChart.Provider>
+    </View>
   )
 }
 
