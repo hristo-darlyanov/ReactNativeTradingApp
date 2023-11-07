@@ -131,7 +131,7 @@ const StatisticsScreen = () => {
             })
             index += 1
           })
-          setCurrentlySelectedTrades(fullDataSet)
+          setCurrentlySelectedTrades(fullDataSet.reverse())
           setLineData(tempTrades)
           setProfit(profit)
         } else {
@@ -160,7 +160,7 @@ const StatisticsScreen = () => {
               index += 1
             }
           })
-          setCurrentlySelectedTrades(fullDataSet)
+          setCurrentlySelectedTrades(fullDataSet.reverse())
           setLineData(tempTrades)
           setProfit(profit)
         }
@@ -254,7 +254,7 @@ const StatisticsScreen = () => {
     <View style={styles.container}>
       <LineChart.Provider data={lineData}>
         <FlatList
-          style={{ width: '95%', alignSelf: 'center' }}
+          style={{ width: '100%', alignSelf: 'center' }}
           keyExtractor={(item) => item.randomId}
           data={currentlySelectedTrades}
           renderItem={({ item }) => (
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   separatorLine: {
     height: 1,
     backgroundColor: '#3e3e3e',
-    width: '100%'
+    width: '95%'
   },
   profitText: {
     color: 'white',

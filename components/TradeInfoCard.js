@@ -31,13 +31,14 @@ export default TradeInfoCard
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: '100%',
+        width: '95%',
         height: '20%',
         backgroundColor: '#2e2e2e',
         borderRadius: 10,
         borderWidth: 3,
         borderColor: '#1e1e1e',
         marginTop: 10,
+        alignSelf: 'center',
     },
     symbolText: {
         fontSize: 20,

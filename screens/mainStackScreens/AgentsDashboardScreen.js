@@ -1,8 +1,8 @@
-import { ScrollView, StyleSheet, Text, View, FlatList, SafeAreaView, TouchableOpacity } from 'react-native'
+import { ScrollView, StyleSheet, Text, View, FlatList, SafeAreaView, TouchableOpacity, Modal } from 'react-native'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
-import { CreateAgentTabContext, LoadedAgentInfoContext, RefreshingAgentsTabContext } from '../../components/PublicContexts';
+import { CreateAgentTabContext, ErrorFetchingDataContext, LoadedAgentInfoContext, RefreshingAgentsTabContext } from '../../components/PublicContexts';
 import AgentInfoCard from '../../components/AgentInfoCard';
-import React, { useContext, useLayoutEffect, useState } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { db, auth } from '../../config/Firebase';
 import { query, where, onSnapshot, collection } from 'firebase/firestore';
 
@@ -10,7 +10,9 @@ const AgentsDashboardScreen = ({ navigation }) => {
   const { isCreatingAgent, setIsCreatingAgent } = useContext(CreateAgentTabContext)
   const [dataLoaded, setDataLoaded] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(true)
+  const [error, setError] = useState(false)
   const [agentData, setAgentData] = useState([])
+  const [modalVisible, setModalVisible] = useState(false);
 
   useLayoutEffect(() => {
     const q = query(collection(db, 'agents'), where('associatedAccountUserId', '==', auth.currentUser.uid))
@@ -30,6 +32,38 @@ const AgentsDashboardScreen = ({ navigation }) => {
 
     return snapShotUnsubscribe
   }, [])
+
+  // useEffect(() => {
+  //   if (error == true) {
+  //     setModalVisible(true)
+  //     setError(false)
+      
+  //     setTimeout(() => {
+  //       if (modalVisible) {
+  //         setModalVisible(false)
+  //       }
+  //     }, 3000);
+  //   }
+  // }, [error])
+
+  function InternetErrorModal() {
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Check internet connection</Text>
+          </View>
+        </View>
+      </Modal>
+    )
+  }
 
   function FlatListHeader() {
     return (
@@ -53,31 +87,34 @@ const AgentsDashboardScreen = ({ navigation }) => {
   return (
     <RefreshingAgentsTabContext.Provider value={{ isRefreshing, setIsRefreshing }}>
       <LoadedAgentInfoContext.Provider value={{ dataLoaded, setDataLoaded }} >
-        <View style={styles.container}>
-          <SafeAreaView>
-            <FlatList
-              onRefresh={() => {
-                setDataLoaded(false)
-                setIsRefreshing(true)
-              }}
-              refreshing={isRefreshing}
-              keyExtractor={(item) => item.agentName}
-              data={agentData}
-              renderItem={({ item }) => (
-                <AgentInfoCard
-                  name={item.agentName}
-                  exchange={item.exchange}
-                  position={item.position}
-                  apiKey={item.apiKey}
-                  apiSecret={item.apiSecret}
-                  dateOfCreation={item.dateOfCreation}
-                  currentOrderId={item.currentOrderId}
-                />
-              )}
-              ListHeaderComponent={<FlatListHeader />}
-            />
-          </SafeAreaView>
-        </View>
+        <ErrorFetchingDataContext.Provider value={{ error, setError }} >
+          <InternetErrorModal />
+          <View style={styles.container}>
+            <SafeAreaView>
+              <FlatList
+                onRefresh={() => {
+                  setDataLoaded(false)
+                  setIsRefreshing(true)
+                }}
+                refreshing={isRefreshing}
+                keyExtractor={(item) => item.agentName}
+                data={agentData}
+                renderItem={({ item }) => (
+                  <AgentInfoCard
+                    name={item.agentName}
+                    exchange={item.exchange}
+                    position={item.position}
+                    apiKey={item.apiKey}
+                    apiSecret={item.apiSecret}
+                    dateOfCreation={item.dateOfCreation}
+                    currentOrderId={item.currentOrderId}
+                  />
+                )}
+                ListHeaderComponent={<FlatListHeader />}
+              />
+            </SafeAreaView>
+          </View>
+        </ErrorFetchingDataContext.Provider>
       </LoadedAgentInfoContext.Provider>
     </RefreshingAgentsTabContext.Provider>
   )
@@ -111,4 +148,21 @@ const styles = StyleSheet.create({
     marginTop: '2%',
     alignSelf: 'center'
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    width: '93%',
+    alignItems: 'center',
+    marginBottom: '30%'
+  },
+  modalText: {
+    color: 'black',
+    fontSize: 27,
+    paddingVertical: 10
+  }
 })

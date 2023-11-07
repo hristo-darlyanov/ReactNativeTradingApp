@@ -6,4 +6,6 @@ export const CreateAgentTabContext = createContext('')
 // Used to set state when loading or refreshing the Dashboard
 export const RefreshingAgentsTabContext = createContext('')
 
+export const ErrorFetchingDataContext = createContext('')
+
 export const LoadedAgentInfoContext = createContext('')
