@@ -2,24 +2,26 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'rea
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { default as IconAntDesign } from 'react-native-vector-icons/AntDesign';
 import { default as IconMaterialIcons } from 'react-native-vector-icons/MaterialIcons';
+import { CandlestickChart } from 'react-native-wagmi-charts';
 import { LineChart } from 'react-native-wagmi-charts';
 import { GetKlines, OrdersInformationFutures } from '../../BinanceAccountController';
 
 const AgentInfoScreen = ({ route, navigation }) => {
-    const { entryPrice, currentOrderId, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation } = route.params
-    const [fourHourLineData, setFourHourLineData] = useState([{ x: 0, value: 0 }])
-    const [oneDayLineData, setOneDayLineData] = useState([{ x: 0, value: 0 }])
+    const { entryPrice, currentOrderId, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation, targetPrice, stopPrice } = route.params
+    const [candleData, setCandleData] = useState([])
     const [lineData, setLineData] = useState([{ x: 0, value: 0 }])
-    const [chart, setChart] = useState('fourHours')
-    const [fourHourChartButtonProps, setFourHourChartButtonProps] = useState({ borderColor: '#3e3e3e', backgroundColor: '#3e3e3e' })
-    const [fourHourChartIconColor, setFourHourChartIconColor] = useState('grey')
-    const [oneDayChartButtonProps, setOneDayChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'white' })
-    const [oneDayChartIconColor, setOneDayChartIconColor] = useState('#2e2e2e')
-    const [horizontalLineProps, setHorizontalLineProps] = useState({ at: { value: -1 }, })
+    const [chart, setChart] = useState('line')
+    const [lineChartButtonProps, setLineChartButtonProps] = useState({ borderColor: '#3e3e3e', backgroundColor: '#3e3e3e' })
+    const [lineChartIconColor, setLineChartIconColor] = useState('grey')
+    const [candleChartButtonProps, setCandleChartButtonProps] = useState({ borderColor: 'grey', backgroundColor: 'white' })
+    const [candleChartIconColor, setCandleChartIconColor] = useState('#2e2e2e')
+    const [entryPriceHorizontalLineProps, setEntryPriceHorizontalLineProps] = useState({ at: { value: -1 }, })
+    const [stopPriceHorizontalLineProps, setStopPriceHorizontalLineProps] = useState({ at: { value: -1 }, })
+    const [takeProfitPriceHorizontalLineProps, setTakeProfitPriceHorizontalLineProps] = useState({ at: { value: -1 }, })
     const [lineHighlightProps, setLineHighlightProps] = useState({ color: 'white' })
     const [dotProps, setDotProps] = useState({})
     const [orderData, setOrderData] = useState({})
-    const [positionEntryDate, setCurrentDate] = useState('')
+    const [positionEntryDate, setPositionEntryDate] = useState('')
     const [positionEntryDateNumbersOnly, setPositionEntryDateNumbersOnly] = useState('')
     const positionColor = position == 'hold' ? 'grey' : position == 'BUY' ? '#33ff1c' : 'red'
     const profitColor = unrealizedProfit > 0 ? '#33ff1c' : unrealizedProfit < 0 ? 'red' : 'grey'
@@ -29,10 +31,10 @@ const AgentInfoScreen = ({ route, navigation }) => {
     const formatUSD = value => {
         'worklet';
         if (value === '') {
-            if (lineData.length == 0) {
+            if (candleData.length == 0) {
                 return ''
             }
-            const formattedValue = `${parseFloat(markPrice).toFixed(2)}`
+            const formattedValue = `${parseFloat(candleData[candleData.length - 1].close).toFixed(2)}`
             return `${formattedValue}`
         }
 
@@ -44,22 +46,35 @@ const AgentInfoScreen = ({ route, navigation }) => {
         'worklet'
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         if (value == '-1') {
-            if (lineData.length < 5) {
+            if (lineData.length != 30) {
                 return ''
             }
             return positionEntryDate
         }
 
         const tempDate = new Date(value)
-        const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}   ( ${tempDate.getHours()}h )`
+        const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
         return date
+    }
+
+    function CandlestickChartDisplay() {
+        return (
+            <CandlestickChart height={360}>
+                <CandlestickChart.Candles />
+                <CandlestickChart.Crosshair>
+                    <CandlestickChart.Tooltip />
+                </CandlestickChart.Crosshair>
+            </CandlestickChart>
+        )
     }
 
     function LineChartDisplay() {
         return (
             <LineChart height={360}>
                 <LineChart.Path color='white' >
-                    <LineChart.HorizontalLine {...horizontalLineProps} />
+                    <LineChart.HorizontalLine {...entryPriceHorizontalLineProps} />
+                    <LineChart.HorizontalLine {...stopPriceHorizontalLineProps}/>
+                    <LineChart.HorizontalLine {...takeProfitPriceHorizontalLineProps}/>
                     <LineChart.Dot {...dotProps} />
                     <LineChart.Highlight {...lineHighlightProps} />
                     <LineChart.Gradient color='white' />
@@ -70,21 +85,21 @@ const AgentInfoScreen = ({ route, navigation }) => {
     }
 
     useEffect(() => {
-        if (chart == 'oneDay') {
-            setOneDayChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
-            setOneDayChartIconColor('#2e2e2e')
-            setFourHourChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e' })
-            setFourHourChartIconColor('grey')
-        } else if (chart == 'fourHours') {
-            setFourHourChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
-            setFourHourChartIconColor('#2e2e2e')
-            setOneDayChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e' })
-            setOneDayChartIconColor('grey')
+        if (chart == 'candlesticks') {
+            setCandleChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
+            setCandleChartIconColor('#2e2e2e')
+            setLineChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e' })
+            setLineChartIconColor('grey')
+        } else if (chart == 'line') {
+            setLineChartButtonProps({ borderColor: '#3e3e3e', backgroundColor: 'white' })
+            setLineChartIconColor('#2e2e2e')
+            setCandleChartButtonProps({ borderColor: 'grey', backgroundColor: '#3e3e3e' })
+            setCandleChartIconColor('grey')
         }
     }, [chart])
 
     useEffect(() => {
-        if (orderData != {} && lineData.length > 4) {
+        if (orderData != {} && lineData.length == 30) {
             let lineDataConvertedTimes = []
             const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
             const positionConvertedTimestamp = new Date(orderData.time)
@@ -92,17 +107,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
                 lineDataConvertedTimes.push(new Date(lineData[index].timestamp))
             }
             if (position != 'hold') {
-                let indexOfPosition = -1
-                if (chart == 'fourHours') {
-                    indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate() && x.getHours() + 4 > positionConvertedTimestamp.getHours())
-                } else if (chart == 'oneDay') {
-                    indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
-                }
-
-                if (indexOfPosition == -1) {
-                    indexOfPosition = 0
-                }
-
+                const indexOfPosition = lineDataConvertedTimes.findIndex(x => x.getDate() == positionConvertedTimestamp.getDate())
                 setDotProps({
                     at: indexOfPosition,
                     color: profitColor,
@@ -111,19 +116,19 @@ const AgentInfoScreen = ({ route, navigation }) => {
                     outerSize: 12
                 })
                 setLineHighlightProps({ color: profitColor, from: indexOfPosition, to: 30 })
-                setHorizontalLineProps({ at: { index: indexOfPosition } })
+                setEntryPriceHorizontalLineProps({ at: { index: indexOfPosition } })
+                setStopPriceHorizontalLineProps({ at: { value: stopPrice }, color: 'red'})
+                setTakeProfitPriceHorizontalLineProps({ at: { value: targetPrice }, color: '#33ff1c'})
                 const tempLineData = lineData
                 tempLineData[indexOfPosition] = {
                     value: entryPrice.toFixed(2),
                     timestamp: orderData.time
                 }
-
                 setLineData(tempLineData)
-                const tempDate = new Date(orderData.time)
-                const currentDate = new Date(Date.now())
-                const date = `${currentDate.getDate()} | ${months[currentDate.getMonth()]} | ${currentDate.getFullYear()}   ( ${currentDate.getHours()}h )`
-                const cleanDate = `${tempDate.getDate()} | ${tempDate.getMonth() + 1} | ${tempDate.getFullYear()}   ( ${tempDate.getHours()}h )`
-                setCurrentDate(date)
+                const tempDate = new Date(lineData[lineData.length - 1].timestamp)
+                const date = `${tempDate.getDate()} | ${months[tempDate.getMonth()]} | ${tempDate.getFullYear()}`
+                const cleanDate = `${tempDate.getDate()} | ${tempDate.getMonth() + 1} | ${tempDate.getFullYear()}`
+                setPositionEntryDate(date)
                 setPositionEntryDateNumbersOnly(cleanDate)
             }
         }
@@ -134,6 +139,7 @@ const AgentInfoScreen = ({ route, navigation }) => {
             if (position != 'hold') {
                 await OrdersInformationFutures(apiKey, apiSecret, currentOrderId)
                     .then((data) => {
+                        console.log(data)
                         const order = data.find(x => parseFloat(x.avgPrice).toFixed(2) == entryPrice.toFixed(2))
                         setOrderData(order)
                     })
@@ -150,27 +156,19 @@ const AgentInfoScreen = ({ route, navigation }) => {
         async function GetKlinesData() {
             await GetKlines()
                 .then((data) => {
-                    let oneDayData = []
-
-                    data.forEach(item => {
-                        if (new Date(item[6]).getHours() == 2) {
-                            oneDayData.push({
-                                timestamp: item[6],
-                                value: parseFloat(item[4])
-                            })
-                        }
-                    });
-
-                    let fourHourData = data.map(x => ({
+                    let tempCandleChartData = data.map(x => ({
+                        timestamp: x[6],
+                        open: x[1],
+                        high: x[2],
+                        low: x[3],
+                        close: x[4]
+                    }))
+                    let tempLineChartData = data.map(x => ({
                         timestamp: x[6],
                         value: parseFloat(x[4])
                     }))
-
-                    fourHourData = fourHourData.slice(-30)
-
-                    setLineData(fourHourData)
-                    setFourHourLineData(fourHourData)
-                    setOneDayLineData(oneDayData)
+                    setCandleData(tempCandleChartData)
+                    setLineData(tempLineChartData)
                 })
                 .catch(error => {
                     console.log(error)
@@ -182,129 +180,147 @@ const AgentInfoScreen = ({ route, navigation }) => {
 
     return (
         <LineChart.Provider data={lineData}>
-            <ScrollView style={styles.container}>
-                <View style={styles.headerContainer}>
-                    <IconAntDesign.Button
-                        name="left"
-                        size={43}
-                        backgroundColor={'black'}
-                        color="grey"
-                        onPress={() => navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })}
-                        borderRadius={50}
-                        iconStyle={{ marginRight: 5 }} />
-                    <View style={styles.headerTitleWrapper}>
-                        <Text style={styles.headerText}>{name}</Text>
-                        <Image style={styles.image} source={image} />
+            <CandlestickChart.Provider data={candleData}>
+                <ScrollView style={styles.container}>
+                    <View style={styles.headerContainer}>
+                        <IconAntDesign.Button
+                            name="left"
+                            size={43}
+                            backgroundColor={'black'}
+                            color="grey"
+                            onPress={() => navigation.navigate("MainStack", { screen: "AgentsDashboardScreen" })}
+                            borderRadius={50}
+                            iconStyle={{ marginRight: 5 }} />
+                        <View style={styles.headerTitleWrapper}>
+                            <Text style={styles.headerText}>{name}</Text>
+                            <Image style={styles.image} source={image} />
+                        </View>
+                        <IconMaterialIcons.Button
+                            name="settings"
+                            size={43}
+                            backgroundColor={'black'}
+                            color="grey"
+                            onPress={() => navigation.navigate('AgentSettingsScreen', {
+                                entryPrice: entryPrice,
+                                apiKey: apiKey,
+                                apiSecret: apiSecret,
+                                position: position,
+                                image: image,
+                                name: name,
+                                markPrice: markPrice,
+                                unrealizedProfitPerc: unrealizedProfitPerc,
+                                unrealizedProfit: unrealizedProfit,
+                                dateOfCreation: dateOfCreation,
+                                targetPrice: targetPrice,
+                                stopPrice: stopPrice
+                            })}
+                            borderRadius={50}
+                            iconStyle={{ marginRight: '5%' }} />
                     </View>
-                    <IconMaterialIcons.Button
-                        name="settings"
-                        size={43}
-                        backgroundColor={'black'}
-                        color="grey"
-                        onPress={() => navigation.navigate('AgentSettingsScreen', {
-                            entryPrice: entryPrice,
-                            apiKey: apiKey,
-                            apiSecret: apiSecret,
-                            position: position,
-                            image: image,
-                            name: name,
-                            markPrice: markPrice,
-                            unrealizedProfitPerc: unrealizedProfitPerc,
-                            unrealizedProfit: unrealizedProfit,
-                            dateOfCreation: dateOfCreation
-                        })}
-                        borderRadius={50}
-                        iconStyle={{ marginRight: '5%' }} />
-                </View>
-                <View style={styles.chartContainer}>
-                    <View style={styles.chartHeader}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <View style={{ marginRight: 10, marginLeft: 5 }}>
-                                <Text style={styles.assetText}>BTCUSDT</Text>
-                                <Text style={{ color: 'grey' }}>Perpetual</Text>
+                    <View style={styles.chartContainer}>
+                        <View style={styles.chartHeader}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{ marginRight: 10, marginLeft: 5 }}>
+                                    <Text style={styles.assetText}>BTCUSDT</Text>
+                                    <Text style={{ color: 'grey' }}>Perpetual</Text>
+                                </View>
+                                {/* <Text style={{ fontSize: 30, color: 'white' }}>{candleData.length > 0 ? candleData[candleData.length - 1].close : ''}</Text> */}
+                                <LineChart.PriceText
+                                    format={({ value }) => {
+                                        'worklet';
+                                        const formattedPrice = formatUSD(value);
+                                        return `${formattedPrice}`;
+                                    }}
+                                    style={{ fontSize: 30, color: 'white' }}
+                                />
                             </View>
-                            {/* <Text style={{ fontSize: 30, color: 'white' }}>{candleData.length > 0 ? candleData[candleData.length - 1].close : ''}</Text> */}
-                            <LineChart.PriceText
+                            <View style={{ flexDirection: 'row' }}>
+                                <TouchableOpacity style={[styles.swithToLineButton, { ...lineChartButtonProps }]} onPress={() => {
+                                    setChart('line')
+                                }}>
+                                    <IconMaterialIcons
+                                        name="show-chart"
+                                        size={40}
+                                        color={lineChartIconColor}
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.swithToCandlesButton, { ...candleChartButtonProps }]} onPress={() => {
+                                    setChart('candlesticks')
+                                }}>
+                                    <IconMaterialIcons
+                                        name="waterfall-chart"
+                                        size={40}
+                                        color={candleChartIconColor}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.separatorLine}></View>
+                        {chart == 'candlesticks' ? <CandlestickChartDisplay /> : chart == 'line' ? <LineChartDisplay /> : <View></View>}
+                        <View style={styles.separatorLine}></View>
+                        <View style={styles.dateInfo}>
+                            <LineChart.DatetimeText
                                 format={({ value }) => {
                                     'worklet';
-                                    const formattedPrice = formatUSD(value);
-                                    return `${formattedPrice}`;
+                                    const formattedDate = formatDate(value);
+                                    return formattedDate;
                                 }}
-                                style={{ fontSize: 30, color: 'white' }}
-                            />
-                        </View>
-                        <View style={{ flexDirection: 'row' }}>
-                            <TouchableOpacity style={[styles.swithToLineButton, { ...fourHourChartButtonProps }]} onPress={() => {
-                                setChart('fourHours')
-                                setLineData(fourHourLineData)
-                            }}>
-                                <Text style={{ color: fourHourChartIconColor, fontSize: 20, fontWeight: 'bold' }}>4h</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.swithToCandlesButton, { ...oneDayChartButtonProps }]} onPress={() => {
-                                setChart('oneDay')
-                                setLineData(oneDayLineData)
-                            }}>
-                                <Text style={{ color: oneDayChartIconColor, fontSize: 20, fontWeight: 'bold' }}>1D</Text>
-                            </TouchableOpacity>
+                                style={styles.formattedDate} />
                         </View>
                     </View>
-                    <View style={styles.separatorLine}></View>
-                    <LineChartDisplay />
-                    <View style={styles.separatorLine}></View>
-                    <View style={styles.dateInfo}>
-                        <LineChart.DatetimeText
-                            format={({ value }) => {
-                                'worklet';
-                                const formattedDate = formatDate(value);
-                                return formattedDate;
-                            }}
-                            style={styles.formattedDate} />
+                    <View style={styles.infoContainer}>
+                        <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Side </Text>
+                            <Text style={[styles.infoValueText, { color: position != 'inactive' ? positionColor : 'grey' }]}>{position.toUpperCase()}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
+                            <Text style={[styles.infoValueText, { color: profitColor }]}>{position != 'hold' ? parseFloat(unrealizedProfitPerc).toFixed(2) : '0'}%</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Unrealized profit </Text>
+                            <Text style={[styles.infoValueText, { color: profitColor }]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Entry price </Text>
+                            <Text style={styles.infoValueText}>{parseFloat(entryPrice).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Target price </Text>
+                            <Text style={styles.infoValueText}>{parseFloat(targetPrice).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Stop price </Text>
+                            <Text style={styles.infoValueText}>{parseFloat(stopPrice).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Market price</Text>
+                            <Text style={styles.infoValueText}>{parseFloat(markPrice).toFixed(2)}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Margin</Text>
+                            <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? parseFloat(orderData.cumQuote).toFixed(2) : '0'} USDT</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Type</Text>
+                            <Text style={[styles.infoValueText, { color: 'grey' }]}>Market</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Entry date</Text>
+                            <Text style={styles.infoValueText}>{position != 'hold' ? positionEntryDateNumbersOnly : 'Not in a trade'}</Text>
+                        </View>
+                        <View style={styles.infoWrapper}>
+                            <Text style={styles.infoDescriptionText}>Executed quantity</Text>
+                            <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? orderData.executedQty : '0'}</Text>
+                        </View>
+                        <View style={[styles.infoWrapper, { marginTop: 30 }]}>
+                            <Text style={styles.infoDescriptionText}>Agent created on</Text>
+                            <Text style={styles.infoValueText}>{formattedDateOfCreation}</Text>
+                        </View>
                     </View>
-                </View>
-                <View style={styles.infoContainer}>
-                    <Text style={{ color: 'white', fontSize: 30, fontWeight: '800', marginLeft: '2%' }}>Trade statistics</Text>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Side </Text>
-                        <Text style={[styles.infoValueText, { color: position != 'inactive' ? positionColor : 'grey' }]}>{position.toUpperCase()}</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Unrealized profit %</Text>
-                        <Text style={[styles.infoValueText, { color: profitColor }]}>{position != 'hold' ? parseFloat(unrealizedProfitPerc).toFixed(2) : '0'}%</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Unrealized profit </Text>
-                        <Text style={[styles.infoValueText, { color: profitColor }]}>{parseFloat(unrealizedProfit).toFixed(2)} USDT</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Entry price </Text>
-                        <Text style={styles.infoValueText}>{parseFloat(entryPrice).toFixed(2)}</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Market price</Text>
-                        <Text style={styles.infoValueText}>{parseFloat(markPrice).toFixed(2)}</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Margin</Text>
-                        <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? parseFloat(orderData.cumQuote).toFixed(2) : '0'} USDT</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Type</Text>
-                        <Text style={[styles.infoValueText, { color: 'grey' }]}>Market</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Entry date</Text>
-                        <Text style={styles.infoValueText}>{position != 'hold' ? positionEntryDateNumbersOnly : 'Not in a trade'}</Text>
-                    </View>
-                    <View style={styles.infoWrapper}>
-                        <Text style={styles.infoDescriptionText}>Executed quantity</Text>
-                        <Text style={styles.infoValueText}>{Object.keys(orderData).length != 0 ? orderData.executedQty : '0'}</Text>
-                    </View>
-                    <View style={[styles.infoWrapper, { marginTop: 30 }]}>
-                        <Text style={styles.infoDescriptionText}>Agent created on</Text>
-                        <Text style={styles.infoValueText}>{formattedDateOfCreation}</Text>
-                    </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </CandlestickChart.Provider>
         </LineChart.Provider>
     )
 }

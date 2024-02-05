@@ -25,9 +25,13 @@ const AgentsDashboardScreen = ({ navigation }) => {
         dateOfCreation: item.data().dateOfCreation,
         exchange: item.data().exchange,
         position: item.data().position,
+        stop_price: item.data().stop_price,
+        target_price: item.data().target_price,
         currentOrderId: item.data().currentOrderId,
         id: item.id
       })))
+
+      updatedQuery.docs.length == 0 ? setDataLoaded(true) : <></>
     })
 
     return snapShotUnsubscribe
@@ -65,7 +69,7 @@ const AgentsDashboardScreen = ({ navigation }) => {
     )
   }
 
-  function FlatListHeader() {
+  function Header() {
     return (
       <>
         <View style={styles.headerWrapper}>
@@ -91,6 +95,7 @@ const AgentsDashboardScreen = ({ navigation }) => {
           <InternetErrorModal />
           <View style={styles.container}>
             <SafeAreaView>
+              <Header />
               <FlatList
                 onRefresh={() => {
                   setDataLoaded(false)
@@ -108,9 +113,10 @@ const AgentsDashboardScreen = ({ navigation }) => {
                     apiSecret={item.apiSecret}
                     dateOfCreation={item.dateOfCreation}
                     currentOrderId={item.currentOrderId}
+                    targetPrice={item.target_price}
+                    stopPrice={item.stop_price}
                   />
                 )}
-                ListHeaderComponent={<FlatListHeader />}
               />
             </SafeAreaView>
           </View>

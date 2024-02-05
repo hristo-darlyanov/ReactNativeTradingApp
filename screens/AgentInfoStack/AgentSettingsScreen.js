@@ -7,7 +7,7 @@ import LeftPointingArrow from '../../components/LeftPointingArrow';
 import { NewOrderFutures } from '../../BinanceAccountController';
 
 const AgentSettingsScreen = ({ route, navigation }) => {
-  const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation } = route.params
+  const { entryPrice, apiKey, apiSecret, position, image, name, markPrice, unrealizedProfitPerc, unrealizedProfit, dateOfCreation, targetPrice, stopPrice } = route.params
   const [currentPosition, setCurrentPosition] = useState(position)
   const [deleteAgentModalVisible, setDeleteAgentModalVisible] = useState(false)
   const [changeAgentStateModalVisible, setChangeAgentStateModalVisible] = useState(false)
@@ -180,7 +180,10 @@ const AgentSettingsScreen = ({ route, navigation }) => {
             name: name,
             markPrice: markPrice,
             unrealizedProfitPerc: unrealizedProfitPerc,
-            unrealizedProfit: unrealizedProfit
+            unrealizedProfit: unrealizedProfit,
+            dateOfCreation: dateOfCreation,
+            targetPrice: targetPrice,
+            stopPrice: stopPrice
           })}
         />
         <Text style={styles.titleText}>{name} <Text style={[styles.titleText, { fontWeight: '300' }]}>settings</Text></Text>
